@@ -111,6 +111,12 @@ func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 		if !field.IsExported() {
 			continue // 非公開フィールドは対象外
 		}
+		if field.Type.Kind() == reflect.Struct {
+			// TODO Structは再帰処理が必要。Structに更に潜る
+			//
+
+			continue // Structに直接設定を入れることはできない
+		}
 		tag, ok := field.Tag.Lookup(TAG)
 		if strict && !ok {
 			continue // strictモードではcfgタグがついていないフィールドは無視
@@ -118,6 +124,11 @@ func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 
 		opt := parseTag(field.Name, tag)
 		// log("field=%s key=%s (tag %s)\n", field.Name, opt.ConfigKey, tag)
+		preexist, ok := ret[opt.ConfigKey]
+		if ok {
+			panic(fmt.Sprintf("config key duplicated: %s. first is %s, second is %s",
+				opt.ConfigKey, preexist.Field.Name, field.Name))
+		}
 		ret[opt.ConfigKey] = ReflectField{Field: field, RefValue: fieldVal, Options: opt}
 		if opt.Slice && field.Type.Kind() != reflect.Slice {
 			panic(fmt.Sprintf("struct field %s is defined as slice(by tag), but not slice. check field definition", field.Name))

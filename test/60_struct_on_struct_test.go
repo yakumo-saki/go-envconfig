@@ -20,15 +20,12 @@ func TestMultiTierConfig(t *testing.T) {
 	envconfig.ClearPath()
 	envconfig.AddPath("data/simple/simpleStrArray.env")
 
-	cfg := StrArrayConfig{}
+	cfg := MultiTierConfig{}
 	envconfig.EnableLog()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
 
-	assert.Equal(3, len(cfg.StrArrayConf))
-	assert.Equal("abc0", cfg.StrArrayConf[0])
-	assert.Equal("def1", cfg.StrArrayConf[1])
-	assert.Equal("ghi2", cfg.StrArrayConf[2])
+	assert.Equal("abc0", cfg.SubConfig.SubStringConf)
 }

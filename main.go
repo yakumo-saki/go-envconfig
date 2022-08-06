@@ -93,6 +93,7 @@ func LoadConfig(cfg interface{}) error {
 	return nil
 }
 
+// buildConfigFieldMap build config read strategy
 func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 	ret := make(map[string]ReflectField)
 
@@ -126,9 +127,10 @@ func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 	return ret
 }
 
+// parseTag parses `cfg:""` from struct
 func parseTag(fieldName, tagString string) Options {
 	opt := Options{Slice: false, SliceMerge: false}
-	opt.ConfigKey = strcase.UpperSnakeCase(tagString)
+	opt.ConfigKey = strcase.UpperSnakeCase(fieldName)
 
 	if tagString == "" {
 		return opt

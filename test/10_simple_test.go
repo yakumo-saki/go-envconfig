@@ -9,8 +9,9 @@ import (
 )
 
 type SimpleConfig struct {
-	StrConf string `cfg:"STR_CONF"`
-	IntConf int    `cfg:"INT_CONF"`
+	StrConf         string `cfg:"STR_CONF"`
+	IntConf         int    `cfg:"INT_CONF"`
+	TestConvertCase string
 }
 
 // slice以外の階層化されていない単純なstructの読み込みテスト
@@ -31,4 +32,5 @@ func TestLoadSimpleOne(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("abc", cfg.StrConf)
 	assert.Equal(123, cfg.IntConf)
+	assert.Equal("this must be read", cfg.TestConvertCase)
 }

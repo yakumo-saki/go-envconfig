@@ -13,13 +13,19 @@ type SimpleConfig struct {
 	IntConf int    `cfg:"INT_CONF"`
 }
 
+// slice以外の階層化されていない単純なstructの読み込みテスト
+// 値の変換にバグがないかテストする
 func TestLoadSimpleOne(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
 	envconfig.AddPath("data/simple/simple.env")
 
 	cfg := SimpleConfig{}
+	envconfig.EnableLog()
 	err := envconfig.LoadConfig(&cfg)
+	if err != nil {
+		assert.Fail(err.Error())
+	}
 
 	fmt.Printf("after %v\n", cfg)
 	assert.Nil(err)

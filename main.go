@@ -93,11 +93,16 @@ func LoadConfig(cfg interface{}) error {
 	return nil
 }
 
-// buildConfigFieldMap build config read strategy
 func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
+	cfgValue := reflect.ValueOf(cfg)
+	return buildConfigFieldMapImpl(cfgValue)
+}
+
+// buildConfigFieldMap build config read strategy
+// param cfgValue reflect.Value of struct instance
+func buildConfigFieldMapImpl(cfgValue reflect.Value) map[string]ReflectField {
 	ret := make(map[string]ReflectField)
 
-	cfgValue := reflect.ValueOf(cfg)
 	cfgElemValue := cfgValue.Elem()
 	cfgType := cfgElemValue.Type()
 	if cfgElemValue.Kind() != reflect.Struct {
@@ -111,12 +116,23 @@ func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 		if !field.IsExported() {
 			continue // 非公開フィールドは対象外
 		}
-		if field.Type.Kind() == reflect.Struct {
-			// TODO Structは再帰処理が必要。Structに更に潜る
-			//
 
-			continue // Structに直接設定を入れることはできない
+		// Structは再帰処理が必要。Structに更に潜る
+		if field.Type.Kind() == reflect.Struct {
+			structVal := reflect.New(fieldVal.Type()) // structのインスタンスを生成
+			structCfg := buildConfigFieldMapImpl(structVal)
+			for k, v := range structCfg {
+				preexist, ok := ret[k]
+				if ok {
+					panic(fmt.Sprintf("config key duplicated: %s. first is %s, second is %s",
+						k, preexist.Field.Name, field.Name))
+				}
+				ret[k] = v
+			}
+			continue // Struct自体に直接設定を入れることはできないので無視
 		}
+
+		// フィールド
 		tag, ok := field.Tag.Lookup(TAG)
 		if strict && !ok {
 			continue // strictモードではcfgタグがついていないフィールドは無視

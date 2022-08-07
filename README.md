@@ -1,6 +1,13 @@
 # go-envconfig
 
-設定ファイルと環境変数から
+設定ファイルと環境変数から値を取得してstructにセットします。  
+
+## 特徴
+
+* 設定なしでもつかえる
+* 設定ファイルの位置、名前は自由
+* 設定をsliceに格納することができる
+* structが階層化されていても大丈夫
 
 ## インストール
 
@@ -12,13 +19,13 @@ go get https://github.com/yakumo-saki/go-envconfig
 
 （オプション）設定ファイルを作成する
 ```
-StrConf=value_from_config_file
-IntConf=1234
+STR_CONF=value_from_config_file
+INT_CONF=1234
 ```
 
 （オプション）環境変数をセットする
 ```
-StrConf=value_from_env
+STR_CONF=value_from_env
 ```
 
 ```golang
@@ -44,7 +51,14 @@ func main() {
 }
 ```
 
-## Advanced usage
+## 基本動作
+
+* envconfig.AddPath() で追加された順番に設定ファイルを読み込みます。
+* なお、指定された設定ファイルが存在しない場合は無視します
+* envconfig.AddPath()されたファイルを読み終わった後に環境変数を読み込みます。
+* 同一の設定が存在する場合、後に出現したものが優先されます。
+
+## Advanced
 
 ### デフォルト値を入れたい
 
@@ -61,7 +75,10 @@ func main() {
 ```
 
 
-### キーを指定したい
+### 設定のキーを指定したい
+
+デフォルトでは、フィールド名をUPPER_SNAKE_CASEにしたものが設定のキーとして使用されます。  
+以下の例であれば、`STR_CONF` が使用されます。これを変更したい場合は以下のように指定します。
 
 ```golang
 type Conf struct {

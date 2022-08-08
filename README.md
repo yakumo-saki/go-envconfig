@@ -139,3 +139,25 @@ SLICE_CONFIG00=xyz
 ```
 
 → SLICE_CONFIG = []string{"abc", "xyz"}
+
+### 指定したフィールド以外に値をセットしない
+
+```
+TEST=this is not read
+```
+
+```golang
+type SimpleConfig struct {
+	Test string
+}
+
+func main() {
+    cfg := SimpleConfig{}
+    
+    // Use Strict mode.
+    UseStrict() 
+    
+    envconfig.LoadConfig(&cfg)
+    fmt.Println(cfg.Test)  // empty. not "this is not read"
+}
+```

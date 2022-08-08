@@ -2,6 +2,7 @@ package envconfig
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -91,8 +92,23 @@ func LoadConfig(cfg interface{}) error {
 	}
 
 	// load environment values
+	envMap := GetOSEnv()
+	err := applyEnvfile(envMap, configFieldMap, cfg)
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func GetOSEnv() map[string]string {
+	ret := make(map[string]string)
+
+	for _, v := range os.Environ() {
+		splitted := strings.SplitN(v, "=", 2)
+		ret[splitted[0]] = splitted[1]
+	}
+	return ret
 }
 
 func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
@@ -195,6 +211,7 @@ func parseTag(fieldName, tagString string) Options {
 
 // transformValueMap transforms valueMap to configMap
 // Slice化の処理を行う
+// valueMap map[string]string -> map[string]string|[]string
 func transformValueMap(valueMap map[string]string, configFieldMap map[string]ReflectField) map[string]interface{} {
 	ret := make(map[string]interface{})
 
@@ -202,16 +219,20 @@ func transformValueMap(valueMap map[string]string, configFieldMap map[string]Ref
 		logDebug("key %s refF=%v\n", key, refField)
 
 		cfgKey := refField.Options.ConfigKey
-		if refField.Options.Slice {
+		switch {
+		case refField.Options.Slice:
 			slice := buildSliceFromValueMap(cfgKey, valueMap)
-			ret[cfgKey] = slice
-		} else {
-			v, ok := valueMap[cfgKey]
-			if ok {
-				ret[cfgKey] = v
+			if len(slice) == 0 {
+				continue // sliceがempty => no config
 			}
+			ret[cfgKey] = slice
+		default:
+			v, ok := valueMap[cfgKey]
+			if !ok {
+				continue
+			}
+			ret[cfgKey] = v
 		}
-
 	}
 
 	return ret

@@ -161,3 +161,17 @@ func main() {
     fmt.Println(cfg.Test)  // empty. not "this is not read"
 }
 ```
+
+## 制限
+
+### 一度定義されたsliceを空にすることはできません
+
+```config1
+SLICE_0=abc
+SLICE_1=def
+```
+
+```config2
+# これで上書きしても、[]string = {""} となり空にはなりません。
+SLICE_0=
+```

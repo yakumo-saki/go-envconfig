@@ -12,7 +12,6 @@ type ConvArrayConfig struct {
 	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,slice"`
 }
 
-// Sliceがnilのまま、シンプルに読み込むテスト
 func TestLoadSliceWithConvert(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()

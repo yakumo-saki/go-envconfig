@@ -13,7 +13,6 @@ type StrArrayConfig struct {
 	Dummy2       string   `cfg:""`
 }
 
-// Sliceがnilのまま、シンプルに読み込むテスト
 func TestLoadSimpleStringSlice(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()

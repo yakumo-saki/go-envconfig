@@ -62,7 +62,7 @@ func main() {
 
 ### デフォルト値を入れたい
 
-envconfig.LoadConfigに渡すstructに値をセットしてから渡すことで設定可能
+envconfig.LoadConfigに渡すstructに値をセットしてから渡すことで設定可能。  
 
 ```golang
 func main() {
@@ -70,7 +70,7 @@ func main() {
     cfg.StrConf = "default value"
 
     err := envconfig.LoadConfig(&cfg)
-
+    fmt.Println(cfg.StrConf) // "default value"
 }
 ```
 

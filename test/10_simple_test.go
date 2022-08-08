@@ -28,7 +28,7 @@ func TestLoadSimpleOne(t *testing.T) {
 	envconfig.AddPath("data/simple/simple.env")
 
 	cfg := SimpleConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
@@ -55,7 +55,7 @@ func TestDuplicated(t *testing.T) {
 	envconfig.AddPath("data/simple/simple.env")
 
 	cfg := DuplicatedBadConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	envconfig.LoadConfig(&cfg)
 
 }

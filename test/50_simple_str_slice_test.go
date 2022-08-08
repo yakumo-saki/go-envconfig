@@ -20,7 +20,7 @@ func TestLoadSimpleStringSlice(t *testing.T) {
 	envconfig.AddPath("data/simple/simpleStrArray.env")
 
 	cfg := StrArrayConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
@@ -39,7 +39,7 @@ func TestLoadSimpleStringSliceZeroPadding(t *testing.T) {
 	envconfig.AddPath("data/simple/simpleStrArrayPadding.env")
 
 	cfg := StrArrayConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())

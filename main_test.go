@@ -10,7 +10,7 @@ import (
 func TestConvertSlice(t *testing.T) {
 	assert := assert.New(t)
 
-	EnableLog()
+	EnableLogWithDefaultLogger()
 
 	strSlice := []string{"1", "2", "3"}
 	intSlice := []int{}

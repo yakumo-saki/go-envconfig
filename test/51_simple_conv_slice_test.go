@@ -19,7 +19,7 @@ func TestLoadSliceWithConvert(t *testing.T) {
 	envconfig.AddPath("data/simple/simpleArrayConv.env")
 
 	cfg := ConvArrayConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())

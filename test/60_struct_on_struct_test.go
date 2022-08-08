@@ -9,6 +9,7 @@ import (
 
 type MultiTierConfig struct {
 	SubConfig SubConfigStruct
+	StringCfg string
 }
 
 type SubConfigStruct struct {
@@ -18,10 +19,10 @@ type SubConfigStruct struct {
 func TestMultiTierConfig(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simpleStrArray.env")
+	envconfig.AddPath("data/simple/struct_on_struct.env")
 
 	cfg := MultiTierConfig{}
-	envconfig.EnableLog()
+	envconfig.EnableLogWithDefaultLogger()
 	err := envconfig.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())

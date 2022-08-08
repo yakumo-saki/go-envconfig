@@ -14,7 +14,10 @@ import (
 
 const TAG = "cfg"
 
-var debuglog func(format string, a ...interface{})
+type LogFunc func(string, ...interface{})
+
+var warnlog LogFunc
+var debuglog LogFunc
 
 var paths []string
 
@@ -68,7 +71,7 @@ func LoadConfig(cfg interface{}) error {
 	// tag -> fielddesc のmapを作る
 	configFieldMap := buildConfigFieldMap(cfg)
 	for k, v := range configFieldMap {
-		log("configField: key=%s value=%v\n", k, v)
+		logDebug("configField: key=%s value=%v\n", k, v)
 	}
 
 	// load config files
@@ -84,7 +87,7 @@ func LoadConfig(cfg interface{}) error {
 			}
 		} else {
 			// debug
-			log("FileNotFound %s\n", p)
+			logDebug("FileNotFound %s\n", p)
 		}
 	}
 
@@ -99,28 +102,35 @@ func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
 }
 
 // buildConfigFieldMap build config read strategy
-// param cfgValue reflect.Value of struct instance
-func buildConfigFieldMapImpl(cfgValue reflect.Value) map[string]ReflectField {
+// param cfgValue reflect.Value of pointer to struct instance
+func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]ReflectField {
 	ret := make(map[string]ReflectField)
 
-	cfgElemValue := cfgValue.Elem()
-	cfgType := cfgElemValue.Type()
-	if cfgElemValue.Kind() != reflect.Struct {
+	structEntity := refValOfPtrStruct.Elem()
+	structType := structEntity.Type()
+	if structEntity.Kind() != reflect.Struct {
 		panic("cfg is not struct")
 	}
 
-	for i := 0; i < cfgType.NumField(); i++ {
-		field := cfgType.Field(i)
-		fieldVal := cfgElemValue.FieldByName(field.Name)
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		fieldEntity := structEntity.FieldByName(field.Name)
 
 		if !field.IsExported() {
+			_, ok := field.Tag.Lookup(TAG)
+			if ok {
+				logWarn("field %s has %s tag. but ignored. because field %s is not exported.\n",
+					field.Name, TAG, field.Name)
+			}
+
 			continue // 非公開フィールドは対象外
 		}
 
 		// Structは再帰処理が必要。Structに更に潜る
 		if field.Type.Kind() == reflect.Struct {
-			structVal := reflect.New(fieldVal.Type()) // structのインスタンスを生成
-			structCfg := buildConfigFieldMapImpl(structVal)
+			// Structのポインタを渡さないと書き換えができないのでポインタを得る
+			structCfg := buildConfigFieldMapImpl(fieldEntity.Addr())
+
 			for k, v := range structCfg {
 				preexist, ok := ret[k]
 				if ok {
@@ -145,7 +155,7 @@ func buildConfigFieldMapImpl(cfgValue reflect.Value) map[string]ReflectField {
 			panic(fmt.Sprintf("config key duplicated: %s. first is %s, second is %s",
 				opt.ConfigKey, preexist.Field.Name, field.Name))
 		}
-		ret[opt.ConfigKey] = ReflectField{Field: field, RefValue: fieldVal, Options: opt}
+		ret[opt.ConfigKey] = ReflectField{Field: field, RefValue: fieldEntity, Options: opt}
 		if opt.Slice && field.Type.Kind() != reflect.Slice {
 			panic(fmt.Sprintf("struct field %s is defined as slice(by tag), but not slice. check field definition", field.Name))
 		}
@@ -190,7 +200,7 @@ func transformValueMap(valueMap map[string]string, configFieldMap map[string]Ref
 	ret := make(map[string]interface{})
 
 	for key, refField := range configFieldMap {
-		log("key %s refF=%v\n", key, refField)
+		logDebug("key %s refF=%v\n", key, refField)
 
 		cfgKey := refField.Options.ConfigKey
 		if refField.Options.Slice {
@@ -242,7 +252,7 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]ReflectF
 		fieldVal := refField.RefValue
 		option := refField.Options
 
-		log("cfgElemValue Name=%s (Value)=%v Type=%s(%s) CanSet=%v\n",
+		logDebug("cfgElemValue Name=%s (Value)=%v Type=%s(%s) CanSet=%v\n",
 			field.Name, fieldVal, fieldVal.Type(), field.Type.Kind(), fieldVal.CanSet())
 		// ここ、stringのvalをそれぞれの型に変換しないといけないんだけども、全部の型についてなにか書かないと駄目？
 		// せっかくリフレクションしてるのでどうにか楽したい
@@ -256,9 +266,9 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]ReflectF
 			sliceType := field.Type.Elem() // type of slice
 
 			if sliceType.Kind() == reflect.String {
-				log("slice of string. use fast path\n")
+				logDebug("slice of string. use fast path\n")
 				if fieldVal.IsNil() || !option.SliceMerge {
-					log("slice overwrite\n")
+					logDebug("slice overwrite\n")
 					fieldVal.Set(reflect.ValueOf(sliceStr))
 				} else {
 					fieldVal.Set(reflect.AppendSlice(fieldVal, reflect.ValueOf(sliceStr)))
@@ -268,13 +278,13 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]ReflectF
 			}
 
 			// normal path
-			log("slice of %s. use normal path\n", sliceType)
+			logDebug("slice of %s. use normal path\n", sliceType)
 			newSlice, err := convertSlice(sliceStr, sliceType)
 			if err != nil {
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
 			if fieldVal.IsNil() || !option.SliceMerge {
-				log("slice overwrite\n")
+				logDebug("slice overwrite\n")
 				fieldVal.Set(newSlice)
 			} else {
 				fieldVal.Set(reflect.AppendSlice(fieldVal, newSlice))
@@ -334,11 +344,27 @@ func createParseError(value, typeName string, err error) error {
 	return fmt.Errorf("value %s parse error. required type %s. %w", value, typeName, err)
 }
 
-func EnableLog() {
-	debuglog = func(format string, a ...interface{}) { fmt.Printf(format, a...) }
+// EnableLog enables logging with specified log output function.
+// Not output log if function is Nil
+func EnableLog(debug, warn func(format string, a ...interface{})) {
+	debuglog = debug
+	warnlog = warn
 }
 
-func log(format string, a ...interface{}) {
+// EnableLogWithDefaultLogger enables logging with fmt.Printf output.
+func EnableLogWithDefaultLogger() {
+	warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
+	debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
+}
+
+func logWarn(format string, a ...interface{}) {
+	if debuglog == nil {
+		return
+	}
+	warnlog(format, a...)
+}
+
+func logDebug(format string, a ...interface{}) {
 	if debuglog == nil {
 		return
 	}

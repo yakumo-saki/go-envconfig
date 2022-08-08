@@ -35,5 +35,5 @@ func TestSimpleDefaultValue(t *testing.T) {
 	assert.Equal("DEFAULT_STR_CONF", cfg.StrConf)
 	assert.Equal("SUB_STRUCT_DEFAULT", cfg.Sub.SubStructStrConf)
 	assert.Equal("123abc", cfg.Sub.SubConfig)
-	assert.Equal("", cfg.warningTest)
+	assert.Equal("", cfg.warningTest) // not inject. and output warning log
 }

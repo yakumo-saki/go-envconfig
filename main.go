@@ -3,7 +3,6 @@ package envconfig
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/stoewer/go-strcase"
@@ -299,74 +298,4 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]ReflectF
 	}
 
 	return nil
-}
-
-func convertTo(value string, typ reflect.Type) (reflect.Value, error) {
-
-	switch typ.Kind() {
-	case reflect.String:
-		return reflect.ValueOf(value), nil
-	case reflect.Int:
-		v, err := strconv.ParseInt(value, 10, 0)
-		if err != nil {
-			return reflect.ValueOf(nil), createParseError(value, typ.String(), err)
-		}
-		ret := reflect.ValueOf(v).Convert(typ)
-		return ret, nil
-	case reflect.Float64:
-		v, err := strconv.ParseFloat(value, 64)
-		if err != nil {
-			return reflect.ValueOf(nil), createParseError(value, typ.String(), err)
-		}
-		ret := reflect.ValueOf(v).Convert(typ)
-		return ret, nil
-	default:
-		return reflect.ValueOf(nil), fmt.Errorf("unsupported type %s", typ.Kind().String())
-	}
-}
-
-func convertSlice(sliceStr []string, sliceType reflect.Type) (reflect.Value, error) {
-	ret := reflect.MakeSlice(reflect.SliceOf(sliceType), 0, len(sliceStr))
-
-	for _, v := range sliceStr {
-		refVal, err := convertTo(v, sliceType)
-		if err != nil {
-			return ret, err
-		}
-
-		ret = reflect.Append(ret, refVal)
-	}
-
-	return ret, nil
-}
-
-func createParseError(value, typeName string, err error) error {
-	return fmt.Errorf("value %s parse error. required type %s. %w", value, typeName, err)
-}
-
-// EnableLog enables logging with specified log output function.
-// Not output log if function is Nil
-func EnableLog(debug, warn func(format string, a ...interface{})) {
-	debuglog = debug
-	warnlog = warn
-}
-
-// EnableLogWithDefaultLogger enables logging with fmt.Printf output.
-func EnableLogWithDefaultLogger() {
-	warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
-	debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
-}
-
-func logWarn(format string, a ...interface{}) {
-	if debuglog == nil {
-		return
-	}
-	warnlog(format, a...)
-}
-
-func logDebug(format string, a ...interface{}) {
-	if debuglog == nil {
-		return
-	}
-	debuglog(format, a...)
 }

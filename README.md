@@ -86,7 +86,10 @@ type Conf struct {
 }
 ```
 
-### Sliceで欲しい
+### 連番で入力した設定をSliceで欲しい
+
+cfgタグの二番目のオプションに `slice` を追加することで可能です。
+
 
 ```golang
 type Conf struct {
@@ -116,13 +119,16 @@ SLICE_CONFIG00=xyz
 
 ### 複数ファイルにあるsliceを上書きではなくマージしたい
 
+cfgタグの二番目のオプションに `mergeslice` を追加することで可能です。
+
 ```golang
 type Conf struct {
     SliceConfig []string `cfg:"SLICE_CONFIG,mergeslice"`
 }
 ```
 
-#### sliceの例
+
+#### 実行例
 
 ```config1
 SLICE_CONFIG00=abc

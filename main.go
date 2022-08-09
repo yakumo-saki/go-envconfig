@@ -12,6 +12,7 @@ import (
 	"github.com/yakumo-saki/go-envconfig/internal/util"
 )
 
+// struct tag. "cfg"
 const TAG = "cfg"
 
 type LogFunc func(string, ...interface{})
@@ -24,16 +25,16 @@ var paths []string
 // strictモード（明示的にcfgタグを書かない限りインジェクトしない）
 var strict bool = false
 
-type Options struct {
+type options struct {
 	ConfigKey  string
 	Slice      bool
 	SliceMerge bool
 }
 
-type ReflectField struct {
+type reflectField struct {
 	Field    reflect.StructField
 	RefValue reflect.Value
-	Options  Options
+	Options  options
 }
 
 // UseStrict enables strict mode.
@@ -92,7 +93,7 @@ func LoadConfig(cfg interface{}) error {
 	}
 
 	// load environment values
-	envMap := GetOSEnv()
+	envMap := getOSEnv()
 	err := applyEnvfile(envMap, configFieldMap, cfg)
 	if err != nil {
 		return err
@@ -101,7 +102,7 @@ func LoadConfig(cfg interface{}) error {
 	return nil
 }
 
-func GetOSEnv() map[string]string {
+func getOSEnv() map[string]string {
 	ret := make(map[string]string)
 
 	for _, v := range os.Environ() {
@@ -111,15 +112,15 @@ func GetOSEnv() map[string]string {
 	return ret
 }
 
-func buildConfigFieldMap(cfg interface{}) map[string]ReflectField {
+func buildConfigFieldMap(cfg interface{}) map[string]reflectField {
 	cfgValue := reflect.ValueOf(cfg)
 	return buildConfigFieldMapImpl(cfgValue)
 }
 
 // buildConfigFieldMap build config read strategy
 // param cfgValue reflect.Value of pointer to struct instance
-func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]ReflectField {
-	ret := make(map[string]ReflectField)
+func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflectField {
+	ret := make(map[string]reflectField)
 
 	structEntity := refValOfPtrStruct.Elem()
 	structType := structEntity.Type()
@@ -170,7 +171,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]Reflect
 			panic(fmt.Sprintf("config key duplicated: %s. first is %s, second is %s",
 				opt.ConfigKey, preexist.Field.Name, field.Name))
 		}
-		ret[opt.ConfigKey] = ReflectField{Field: field, RefValue: fieldEntity, Options: opt}
+		ret[opt.ConfigKey] = reflectField{Field: field, RefValue: fieldEntity, Options: opt}
 		if opt.Slice && field.Type.Kind() != reflect.Slice {
 			panic(fmt.Sprintf("struct field %s is defined as slice(by tag), but not slice. check field definition", field.Name))
 		}
@@ -180,8 +181,8 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]Reflect
 }
 
 // parseTag parses `cfg:""` from struct
-func parseTag(fieldName, tagString string) Options {
-	opt := Options{Slice: false, SliceMerge: false}
+func parseTag(fieldName, tagString string) options {
+	opt := options{Slice: false, SliceMerge: false}
 	opt.ConfigKey = strcase.UpperSnakeCase(fieldName)
 
 	if tagString == "" {
@@ -212,7 +213,7 @@ func parseTag(fieldName, tagString string) Options {
 // transformValueMap transforms valueMap to configMap
 // Slice化の処理を行う
 // valueMap map[string]string -> map[string]string|[]string
-func transformValueMap(valueMap map[string]string, configFieldMap map[string]ReflectField) map[string]interface{} {
+func transformValueMap(valueMap map[string]string, configFieldMap map[string]reflectField) map[string]interface{} {
 	ret := make(map[string]interface{})
 
 	for key, refField := range configFieldMap {
@@ -257,7 +258,7 @@ func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string 
 	return ret
 }
 
-func applyEnvfile(valueMap map[string]string, configFieldMap map[string]ReflectField, cfg interface{}) error {
+func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
 	// Slice対応があるので configFieldMapから該当する設定
 	transformedMap := transformValueMap(valueMap, configFieldMap)

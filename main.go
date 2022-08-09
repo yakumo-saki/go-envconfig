@@ -15,6 +15,7 @@ import (
 // struct tag. "cfg"
 const TAG = "cfg"
 
+// LogFunc is log output function
 type LogFunc func(string, ...interface{})
 
 var warnlog LogFunc
@@ -58,10 +59,13 @@ func AddPath(path string) int {
 	return len(paths)
 }
 
+// ClearPath clear all paths added by AddPath()
 func ClearPath() {
 	paths = make([]string, 0)
 }
 
+// LoadConfig starts config process
+// parameter must be pointer of struct entity
 func LoadConfig(cfg interface{}) error {
 
 	cfgType := reflect.TypeOf(cfg)

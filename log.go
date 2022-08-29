@@ -2,17 +2,22 @@ package envconfig
 
 import "fmt"
 
-// EnableLog enables logging with specified log output function.
+// EnableDebugLog enables logging with specified log output function.
 // Not output log if function is Nil
-func EnableLog(debug, warn func(format string, a ...interface{})) {
+func EnableDebugLog(debug, warn, user func(format string, a ...interface{})) {
 	debuglog = debug
 	warnlog = warn
 }
 
 // EnableLogWithDefaultLogger enables logging with fmt.Printf output.
 func EnableLogWithDefaultLogger() {
+	userlog = func(format string, a ...interface{}) { fmt.Printf(format, a...) }
 	warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
 	debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
+}
+
+func logUser(format string, a ...interface{}) {
+	userlog(format, a)
 }
 
 func logWarn(format string, a ...interface{}) {

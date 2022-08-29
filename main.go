@@ -18,6 +18,10 @@ const TAG = "cfg"
 // LogFunc is log output function
 type LogFunc func(string, ...interface{})
 
+// Log for user. eg. wrong value, cant convert string to int
+var userlog LogFunc
+
+// Log for developer.
 var warnlog LogFunc
 var debuglog LogFunc
 
@@ -184,7 +188,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 	return ret
 }
 
-// parseTag parses `cfg:""` from struct
+// parseTag parses `cfg:"xxxxx, ttttt, ooooo"` from struct
 func parseTag(fieldName, tagString string) options {
 	opt := options{Slice: false, SliceMerge: false}
 	opt.ConfigKey = strcase.UpperSnakeCase(fieldName)
@@ -243,6 +247,7 @@ func transformValueMap(valueMap map[string]string, configFieldMap map[string]ref
 	return ret
 }
 
+// buildSliceFromValueMap make slice[string] from config suffix by _00 ~ _99
 func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string {
 	ret := make([]string, 0)
 	for i := 0; i < 100; i++ {
@@ -262,6 +267,7 @@ func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string 
 	return ret
 }
 
+// applyEnvfile apply valueMap to cfg struct, using configFieldMap
 func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
 	// Slice対応があるので configFieldMapから該当する設定
@@ -279,8 +285,6 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectF
 
 		logDebug("cfgElemValue Name=%s (Value)=%v Type=%s(%s) CanSet=%v\n",
 			field.Name, fieldVal, fieldVal.Type(), field.Type.Kind(), fieldVal.CanSet())
-		// ここ、stringのvalをそれぞれの型に変換しないといけないんだけども、全部の型についてなにか書かないと駄目？
-		// せっかくリフレクションしてるのでどうにか楽したい
 
 		switch fieldVal.Kind() {
 		case reflect.Slice:
@@ -317,6 +321,7 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectF
 		default:
 			v, err := convertTo(val.(string), field.Type)
 			if err != nil {
+				logUser("Can't parse %s as %s (field %s): %w", val.(string), field.Type, field.Name, err)
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
 			fieldVal.Set(v)

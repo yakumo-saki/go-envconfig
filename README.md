@@ -58,7 +58,29 @@ func main() {
 * envconfig.AddPath()されたファイルを読み終わった後に環境変数を読み込みます。
 * 同一の設定が存在する場合、後に出現したものが優先されます。
 
-## Advanced
+### TAG
+
+`cfg:"ENV_OR_CFGKEY_NAME,type,option"`
+
+#### ENV_OR_CFGKEY_NAME
+
+環境変数名または設定ファイルのキー。
+Slice、Mapの場合は、プレフィックス。
+
+#### type
+
+`slice` or `map` 
+あれ、これそもそも定義を見れば自動で判断つくよね…？
+
+
+#### option
+
+`merge` or `overwrite` 
+
+TODO: 今はデフォルトがoverwriteだがマージに変更する。
+Mapの場合はOverwrite…どうしよう、スッカラカンか。そもそもoverwrite必要なのか
+
+## Examples
 
 ### デフォルト値を入れたい
 

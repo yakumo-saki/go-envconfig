@@ -55,34 +55,56 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 		}
 
 		// フィールド
-		tag, ok := field.Tag.Lookup(TAG)
-		if strict && !ok {
+		tag, hasTag := field.Tag.Lookup(TAG)
+		if strict && !hasTag {
 			continue // strictモードではcfgタグがついていないフィールドは無視
 		}
 
-		opt := parseTag(field.Name, tag)
+		// build options(CFG envname, type etc) from tag and field
+		opt := createTagFromFieldDef(field)
+		if hasTag {
+			parseTag(&opt, field.Name, tag)
+		}
+
 		// log("field=%s key=%s (tag %s)\n", field.Name, opt.ConfigKey, tag)
-		preexist, ok := ret[opt.ConfigKey]
-		if ok {
+		preexist, alreadyHasKey := ret[opt.ConfigKey]
+		if alreadyHasKey {
 			panic(fmt.Sprintf("config key duplicated: %s. first is %s, second is %s",
 				opt.ConfigKey, preexist.Field.Name, field.Name))
 		}
 		ret[opt.ConfigKey] = reflectField{Field: field, RefValue: fieldEntity, Options: opt}
-		if opt.Slice && field.Type.Kind() != reflect.Slice {
-			panic(fmt.Sprintf("struct field %s is defined as slice(by tag), but not slice. check field definition", field.Name))
-		}
 	}
 
 	return ret
 }
 
-// parseTag parses `cfg:"xxxxx, ttttt, ooooo"` from struct
-func parseTag(fieldName, tagString string) options {
+// default options from struct field definition
+func createTagFromFieldDef(field reflect.StructField) options {
 	opt := options{Slice: false, SliceMerge: false}
-	opt.ConfigKey = strcase.UpperSnakeCase(fieldName)
+
+	name := field.Name
+	opt.ConfigKey = strcase.UpperSnakeCase(name)
+
+	switch field.Type.Kind() {
+	case reflect.Slice:
+		opt.Slice = true
+		opt.SliceMerge = true
+	case reflect.Map:
+		opt.Map = true
+		opt.MapMerge = true
+	default:
+		// no need to do
+	}
+
+	return opt
+}
+
+// parseTag parses `cfg:"xxxxx, ttttt, ooooo"` from struct
+// result modifying opt
+func parseTag(opt *options, fieldName, tagString string) {
 
 	if tagString == "" {
-		return opt
+		return
 	}
 
 	splitted := strings.Split(tagString, ",")
@@ -102,8 +124,6 @@ func parseTag(fieldName, tagString string) options {
 		msg := fmt.Sprintf("Illegal cfg tag %s on %s", tagString, fieldName)
 		panic(msg)
 	}
-
-	return opt
 }
 
 // transformValueMap transforms valueMap to configMap

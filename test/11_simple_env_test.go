@@ -2,7 +2,6 @@ package envconfig_test
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,9 +20,9 @@ func TestEnvOnly(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
 
-	os.Setenv("STR_CONF", "ENV123")
-	os.Setenv("INT_CONF", "555")
-	os.Setenv("MY_CONF", "MYCONF")
+	SetEnv("MY_CONF", "MYCONF")
+	SetEnv("STR_CONF", "ENV123")
+	SetEnv("INT_CONF", "555")
 
 	cfg := EnvConfig{}
 	envconfig.EnableLogWithDefaultLogger()

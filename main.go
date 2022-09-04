@@ -31,6 +31,8 @@ type options struct {
 	ConfigKey  string
 	Slice      bool
 	SliceMerge bool
+	Map        bool
+	MapMerge   bool
 }
 
 type reflectField struct {

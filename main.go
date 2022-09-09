@@ -28,11 +28,10 @@ var paths []string
 var strict bool = false
 
 type options struct {
-	ConfigKey  string
-	Slice      bool
-	SliceMerge bool
-	Map        bool
-	MapMerge   bool
+	ConfigKey string
+	Slice     bool
+	Map       bool
+	Merge     bool // slice or map only. true=merge false=destroy and create
 }
 
 type reflectField struct {
@@ -158,7 +157,7 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectF
 
 			if sliceType.Kind() == reflect.String {
 				logDebug("slice of string. use fast path\n")
-				if fieldVal.IsNil() || !option.SliceMerge {
+				if fieldVal.IsNil() || !option.Merge {
 					logDebug("slice overwrite\n")
 					fieldVal.Set(reflect.ValueOf(sliceStr))
 				} else {
@@ -174,7 +173,7 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectF
 			if err != nil {
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
-			if fieldVal.IsNil() || !option.SliceMerge {
+			if fieldVal.IsNil() || !option.Merge {
 				logDebug("slice overwrite\n")
 				fieldVal.Set(newSlice)
 			} else {

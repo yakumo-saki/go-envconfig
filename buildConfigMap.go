@@ -80,7 +80,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 
 // default options from struct field definition
 func createTagFromFieldDef(field reflect.StructField) options {
-	opt := options{Slice: false, SliceMerge: false}
+	opt := options{Slice: false, Merge: false}
 
 	name := field.Name
 	opt.ConfigKey = strcase.UpperSnakeCase(name)
@@ -88,10 +88,9 @@ func createTagFromFieldDef(field reflect.StructField) options {
 	switch field.Type.Kind() {
 	case reflect.Slice:
 		opt.Slice = true
-		opt.SliceMerge = true
 	case reflect.Map:
 		opt.Map = true
-		opt.MapMerge = true
+		opt.Merge = true
 	default:
 		// no need to do
 	}
@@ -113,12 +112,14 @@ func parseTag(opt *options, fieldName, tagString string) {
 		opt.ConfigKey = splitted[0]
 	case len(splitted) == 2:
 		opt.ConfigKey = splitted[0]
-		if strings.EqualFold(splitted[1], "slice") {
-			opt.Slice = true
-			opt.SliceMerge = false
-		} else if strings.EqualFold(splitted[1], "mergeslice") {
-			opt.Slice = true
-			opt.SliceMerge = true
+		switch {
+		case strings.EqualFold(splitted[1], "slice"):
+			panic("'cfg: name, slice' is deprecated. use 'cfg: name, overwrite'. ")
+		case strings.EqualFold(splitted[1], "mergeslice"):
+			panic("'cfg: name, slice' is deprecated. use 'cfg: name' (default behavior is merge). ")
+		case strings.EqualFold(splitted[1], "overwrite"):
+
+		case strings.EqualFold(splitted[1], "merge"):
 		}
 	default:
 		msg := fmt.Sprintf("Illegal cfg tag %s on %s", tagString, fieldName)

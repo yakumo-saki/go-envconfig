@@ -1,7 +1,6 @@
 package envconfig_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,8 +15,8 @@ func TestLoadEnvStringSlice(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
 
-	os.Setenv("STR_SLICE_0", "STR0")
-	os.Setenv("STR_SLICE_1", "STR1")
+	t.Setenv("STR_SLICE_0", "STR0")
+	t.Setenv("STR_SLICE_1", "STR1")
 
 	cfg := EnvStringSliceConfig{}
 	envconfig.EnableLogWithDefaultLogger()

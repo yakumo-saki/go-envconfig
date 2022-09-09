@@ -20,9 +20,9 @@ func TestEnvOnly(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
 
-	SetEnv("MY_CONF", "MYCONF")
-	SetEnv("STR_CONF", "ENV123")
-	SetEnv("INT_CONF", "555")
+	t.Setenv("MY_CONF", "MYCONF")
+	t.Setenv("STR_CONF", "ENV123")
+	t.Setenv("INT_CONF", "555")
 
 	cfg := EnvConfig{}
 	envconfig.EnableLogWithDefaultLogger()
@@ -32,7 +32,7 @@ func TestEnvOnly(t *testing.T) {
 	}
 
 	fmt.Printf("after %v\n", cfg)
-	assert.Nil(err)
+	fmt.Println("myconf-" + cfg.MyConf)
 	assert.Equal("ENV123", cfg.StrConf)
 	assert.Equal(555, cfg.IntConf)
 	assert.Equal("MYCONF", cfg.MyConf)

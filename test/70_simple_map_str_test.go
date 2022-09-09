@@ -15,11 +15,11 @@ func TestEnvMapStringConfig(t *testing.T) {
 	assert := assert.New(t)
 	envconfig.ClearPath()
 
-	SetEnv("STR_MAP_STR_KEY1-1", "STR1-1")
-	SetEnv("STR_MAP_STR_KEY1-2", "STR1-2")
-	SetEnv("STR_MAP_STR_KEY1-3", "STR1-3")
-	SetEnv("STR_MAP_STR_KEY2-1", "STR2-1")
-	SetEnv("STR_MAP_STR_KEY2-2", "STR2-2")
+	t.Setenv("STR_MAP_STR_KEY1-1", "STR1-1")
+	t.Setenv("STR_MAP_STR_KEY1-2", "STR1-2")
+	t.Setenv("STR_MAP_STR_KEY1-3", "STR1-3")
+	t.Setenv("STR_MAP_STR_KEY2-1", "STR2-1")
+	t.Setenv("STR_MAP_STR_KEY2-2", "STR2-2")
 
 	cfg := EnvMapStringConfig{}
 	envconfig.EnableLogWithDefaultLogger()

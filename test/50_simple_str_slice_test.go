@@ -15,12 +15,15 @@ type StrArrayConfig struct {
 
 func TestLoadSimpleStringSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simpleStrArray.env")
+
+	ec := envconfig.New()
+
+	ec.ClearPath()
+	ec.AddPath("data/simple/simpleStrArray.env")
 
 	cfg := StrArrayConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
@@ -34,12 +37,12 @@ func TestLoadSimpleStringSlice(t *testing.T) {
 // ゼロパディングのテスト
 func TestLoadSimpleStringSliceZeroPadding(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simpleStrArrayPadding.env")
+	ec := envconfig.New()
+	ec.AddPath("data/simple/simpleStrArrayPadding.env")
 
 	cfg := StrArrayConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

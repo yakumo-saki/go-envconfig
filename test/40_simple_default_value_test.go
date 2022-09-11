@@ -21,13 +21,15 @@ type TestDefaultSubConfig struct {
 // デフォルト値を保存しているかテスト
 func TestSimpleDefaultValue(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/default_value.env")
+
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("data/simple/default_value.env")
 
 	cfg := TestDefaultConfig{StrConf: "DEFAULT_STR_CONF"}
 	cfg.Sub = TestDefaultSubConfig{SubStructStrConf: "SUB_STRUCT_DEFAULT", SubConfig: "must be overwrite"}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

@@ -25,11 +25,12 @@ func TestDuplicated(t *testing.T) {
 		}
 	}()
 
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simple.env")
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("data/simple/simple.env")
 
 	cfg := DuplicatedBadConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	ec.LoadConfig(&cfg)
 
 }

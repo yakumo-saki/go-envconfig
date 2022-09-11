@@ -18,12 +18,13 @@ type SimpleConfig struct {
 // 値の変換にバグがないかテストする
 func TestLoadSimpleOne(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simple.env")
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("data/simple/simple.env")
 
 	cfg := SimpleConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
@@ -38,13 +39,14 @@ func TestLoadSimpleOne(t *testing.T) {
 // Strictモードではcfgタグがない場合読み込まない
 func TestStrictMode(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simple.env")
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("data/simple/simple.env")
 
 	cfg := SimpleConfig{}
-	envconfig.UseStrict()
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.UseStrict()
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

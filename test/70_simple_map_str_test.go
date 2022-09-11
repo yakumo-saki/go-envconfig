@@ -13,7 +13,8 @@ type EnvMapStringConfig struct {
 
 func TestEnvMapStringConfig(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
+
+	ec := envconfig.New()
 
 	t.Setenv("STR_MAP_STR_KEY1-1", "STR1-1")
 	t.Setenv("STR_MAP_STR_KEY1-2", "STR1-2")
@@ -22,8 +23,8 @@ func TestEnvMapStringConfig(t *testing.T) {
 	t.Setenv("STR_MAP_STR_KEY2-2", "STR2-2")
 
 	cfg := EnvMapStringConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

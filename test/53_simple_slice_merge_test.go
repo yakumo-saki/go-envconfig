@@ -15,13 +15,15 @@ type MergeSliceConfig struct {
 
 func TestMergeSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/merge_slice_config1.env")
-	envconfig.AddPath("data/simple/merge_slice_config2.env")
+
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("data/simple/merge_slice_config1.env")
+	ec.AddPath("data/simple/merge_slice_config2.env")
 
 	cfg := MergeSliceConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

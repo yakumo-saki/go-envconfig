@@ -14,7 +14,7 @@ type EnvMapSliceStringConfig struct {
 
 func TestEnvMapStrSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
+	ec := envconfig.New()
 
 	t.Setenv("STR_SLICE_MAP_STRKEY1_1", "STR1-1")
 	t.Setenv("STR_SLICE_MAP_STRKEY1_2", "STR1-2")
@@ -23,8 +23,8 @@ func TestEnvMapStrSlice(t *testing.T) {
 	t.Setenv("STR_SLICE_MAP_STRKEY2_2", "STR2-2")
 
 	cfg := EnvMapSliceStringConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
@@ -46,7 +46,7 @@ func TestEnvMapStrSlice(t *testing.T) {
 
 func TestEnvMapIntSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
+	ec := envconfig.New()
 
 	t.Setenv("INT_SLICE_MAP_INTKEY1_1", "100")
 	t.Setenv("INT_SLICE_MAP_INTKEY1_2", "101")
@@ -55,8 +55,8 @@ func TestEnvMapIntSlice(t *testing.T) {
 	t.Setenv("INT_SLICE_MAP_INTKEY2_2", "201")
 
 	cfg := EnvMapSliceStringConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

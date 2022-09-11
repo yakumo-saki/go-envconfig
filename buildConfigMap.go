@@ -8,14 +8,14 @@ import (
 	"github.com/stoewer/go-strcase"
 )
 
-func buildConfigFieldMap(cfg interface{}) map[string]reflectField {
+func (ec *EnvConfig) buildConfigFieldMap(cfg interface{}) map[string]reflectField {
 	cfgValue := reflect.ValueOf(cfg)
-	return buildConfigFieldMapImpl(cfgValue)
+	return ec.buildConfigFieldMapImpl(cfgValue)
 }
 
 // buildConfigFieldMap build config read strategy
 // param cfgValue reflect.Value of pointer to struct instance
-func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflectField {
+func (ec *EnvConfig) buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflectField {
 	ret := make(map[string]reflectField)
 
 	structEntity := refValOfPtrStruct.Elem()
@@ -31,7 +31,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 		if !field.IsExported() {
 			_, ok := field.Tag.Lookup(TAG)
 			if ok {
-				logWarn("field %s has %s tag. but ignored. because field %s is not exported.\n",
+				ec.logWarn("field %s has %s tag. but ignored. because field %s is not exported.\n",
 					field.Name, TAG, field.Name)
 			}
 
@@ -41,7 +41,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 		// Structは再帰処理が必要。Structに更に潜る
 		if field.Type.Kind() == reflect.Struct {
 			// Structのポインタを渡さないと書き換えができないのでポインタを得る
-			structCfg := buildConfigFieldMapImpl(fieldEntity.Addr())
+			structCfg := ec.buildConfigFieldMapImpl(fieldEntity.Addr())
 
 			for k, v := range structCfg {
 				preexist, ok := ret[k]
@@ -56,7 +56,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 
 		// フィールド
 		tag, hasTag := field.Tag.Lookup(TAG)
-		if strict && !hasTag {
+		if ec.strict && !hasTag {
 			continue // strictモードではcfgタグがついていないフィールドは無視
 		}
 
@@ -135,11 +135,11 @@ func parseTag(opt *options, fieldName, tagString string) bool {
 // transformValueMap transforms valueMap to configMap
 // Slice化の処理を行う
 // valueMap map[string]string -> map[string]string|[]string
-func transformValueMap(valueMap map[string]string, configFieldMap map[string]reflectField) map[string]interface{} {
+func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMap map[string]reflectField) map[string]interface{} {
 	ret := make(map[string]interface{})
 
 	for key, refField := range configFieldMap {
-		logDebug("key %s refF=%v\n", key, refField)
+		ec.logDebug("key %s refF=%v\n", key, refField)
 
 		cfgKey := refField.Options.ConfigKey
 		switch {

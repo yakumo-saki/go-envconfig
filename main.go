@@ -9,23 +9,24 @@ import (
 	"github.com/yakumo-saki/go-envconfig/internal/util"
 )
 
+// EnvConfig is main struct of EnvConfig.
+// Use envconfig.New() to get instance.
+type EnvConfig struct {
+	userlog LogFunc // Log for user. eg. wrong value, cant convert string to int
+
+	warnlog  LogFunc // Log for developer.
+	debuglog LogFunc // Log for developer.
+
+	strict bool     // strictモード（明示的にcfgタグを書かない限りインジェクトしない）
+	paths  []string // 設定ファイル検索パス
+}
+
 // struct tag. "cfg"
 const TAG = "cfg"
 
 // LogFunc is log output function
+// parameters are same as fmt.Printf
 type LogFunc func(string, ...interface{})
-
-// Log for user. eg. wrong value, cant convert string to int
-var userlog LogFunc
-
-// Log for developer.
-var warnlog LogFunc
-var debuglog LogFunc
-
-var paths []string
-
-// strictモード（明示的にcfgタグを書かない限りインジェクトしない）
-var strict bool = false
 
 type options struct {
 	ConfigKey string
@@ -40,10 +41,16 @@ type reflectField struct {
 	Options  options
 }
 
+// Always use this method to get instance of EnvConfig
+func New() *EnvConfig {
+	ec := EnvConfig{}
+	return &ec
+}
+
 // UseStrict enables strict mode.
 // in strict mode, all config field must be tagged with "cfg:"
-func UseStrict() {
-	strict = true
+func (ec *EnvConfig) UseStrict() {
+	ec.strict = true
 }
 
 // AddPath adds config read path.
@@ -53,22 +60,22 @@ func UseStrict() {
 //
 // Same config are overwrite by last added config file.
 // returns path count added
-func AddPath(path string) int {
-	if paths == nil {
-		ClearPath()
+func (ec *EnvConfig) AddPath(path string) int {
+	if ec.paths == nil {
+		ec.ClearPath()
 	}
-	paths = append(paths, path)
-	return len(paths)
+	ec.paths = append(ec.paths, path)
+	return len(ec.paths)
 }
 
 // ClearPath clear all paths added by AddPath()
-func ClearPath() {
-	paths = make([]string, 0)
+func (ec *EnvConfig) ClearPath() {
+	ec.paths = make([]string, 0)
 }
 
 // LoadConfig starts config process
 // parameter must be pointer of struct entity
-func LoadConfig(cfg interface{}) error {
+func (ec *EnvConfig) LoadConfig(cfg interface{}) error {
 
 	cfgType := reflect.TypeOf(cfg)
 	if !strings.HasPrefix(cfgType.String(), "*") {
@@ -76,31 +83,31 @@ func LoadConfig(cfg interface{}) error {
 	}
 
 	// tag -> fielddesc のmapを作る
-	configFieldMap := buildConfigFieldMap(cfg)
+	configFieldMap := ec.buildConfigFieldMap(cfg)
 	for k, v := range configFieldMap {
-		logDebug("configField: key=%s value=%v\n", k, v)
+		ec.logDebug("configField: key=%s value=%v\n", k, v)
 	}
 
 	// load config files
-	for _, p := range paths {
+	for _, p := range ec.paths {
 		if util.FileExists(p) {
 			env, err := envfile.ReadEnvfile(p)
 			if err != nil {
 				return err
 			}
-			err = applyEnvMap(env, configFieldMap, cfg)
+			err = ec.applyEnvMap(env, configFieldMap, cfg)
 			if err != nil {
 				return err
 			}
 		} else {
 			// debug
-			logDebug("FileNotFound %s\n", p)
+			ec.logDebug("FileNotFound %s\n", p)
 		}
 	}
 
 	// load environment values
 	envMap := getOSEnv()
-	err := applyEnvMap(envMap, configFieldMap, cfg)
+	err := ec.applyEnvMap(envMap, configFieldMap, cfg)
 	if err != nil {
 		return err
 	}
@@ -129,10 +136,10 @@ func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string 
 }
 
 // applyEnvMap apply valueMap to cfg struct, using configFieldMap
-func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
+func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
 	// Slice対応があるので configFieldMapから該当する設定
-	transformedMap := transformValueMap(valueMap, configFieldMap)
+	transformedMap := ec.transformValueMap(valueMap, configFieldMap)
 
 	for key, val := range transformedMap {
 		refField, ok := configFieldMap[key]
@@ -144,7 +151,7 @@ func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectFi
 		fieldVal := refField.RefValue
 		option := refField.Options
 
-		logDebug("cfgElemValue Name=%s (Value)=%v Type=%s(%s) CanSet=%v\n",
+		ec.logDebug("cfgElemValue Name=%s (Value)=%v Type=%s(%s) CanSet=%v\n",
 			field.Name, fieldVal, fieldVal.Type(), field.Type.Kind(), fieldVal.CanSet())
 
 		switch fieldVal.Kind() {
@@ -156,9 +163,9 @@ func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectFi
 			sliceType := field.Type.Elem() // type of slice
 
 			if sliceType.Kind() == reflect.String {
-				logDebug("slice of string. use fast path\n")
+				ec.logDebug("slice of string. use fast path\n")
 				if fieldVal.IsNil() || !option.Merge {
-					logDebug("slice overwrite\n")
+					ec.logDebug("slice overwrite\n")
 					fieldVal.Set(reflect.ValueOf(sliceStr))
 				} else {
 					fieldVal.Set(reflect.AppendSlice(fieldVal, reflect.ValueOf(sliceStr)))
@@ -174,7 +181,7 @@ func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectFi
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
 			if fieldVal.IsNil() || !option.Merge {
-				logDebug("slice overwrite\n")
+				ec.logDebug("slice overwrite\n")
 				fieldVal.Set(newSlice)
 			} else {
 				fieldVal.Set(reflect.AppendSlice(fieldVal, newSlice))
@@ -182,7 +189,7 @@ func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectFi
 		default:
 			v, err := convertTo(val.(string), field.Type)
 			if err != nil {
-				logUser("Can't parse %s as %s (field %s): %w", val.(string), field.Type, field.Name, err)
+				ec.logUser("Can't parse %s as %s (field %s): %w", val.(string), field.Type, field.Name, err)
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
 			fieldVal.Set(v)

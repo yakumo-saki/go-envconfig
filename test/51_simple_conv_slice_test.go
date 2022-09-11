@@ -14,12 +14,13 @@ type ConvArrayConfig struct {
 
 func TestLoadSliceWithConvert(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simpleArrayConv.env")
+
+	ec := envconfig.New()
+	ec.AddPath("data/simple/simpleArrayConv.env")
 
 	cfg := ConvArrayConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

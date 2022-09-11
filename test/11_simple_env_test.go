@@ -18,15 +18,17 @@ type EnvConfig struct {
 // 値の変換にバグがないかテストする
 func TestEnvOnly(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
+
+	ec := envconfig.New()
+	ec.ClearPath()
 
 	t.Setenv("MY_CONF", "MYCONF")
 	t.Setenv("STR_CONF", "ENV123")
 	t.Setenv("INT_CONF", "555")
 
 	cfg := EnvConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

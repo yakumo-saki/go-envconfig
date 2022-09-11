@@ -18,12 +18,12 @@ type SubConfigStruct struct {
 
 func TestMultiTierConfig(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/struct_on_struct.env")
+	ec := envconfig.New()
+	ec.AddPath("data/simple/struct_on_struct.env")
 
 	cfg := MultiTierConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

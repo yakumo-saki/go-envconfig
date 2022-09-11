@@ -9,10 +9,10 @@ import (
 
 func TestAddPath(t *testing.T) {
 	assert := assert.New(t)
-	ret := envconfig.AddPath("aaa")
-	assert.Equal(ret, 1)
-	ret = envconfig.AddPath("aaa")
-	assert.Equal(ret, 2)
 
-	envconfig.ClearPath()
+	ec := envconfig.New()
+	ret := ec.AddPath("aaa")
+	assert.Equal(ret, 1)
+	ret = ec.AddPath("aaa")
+	assert.Equal(ret, 2)
 }

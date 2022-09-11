@@ -63,7 +63,10 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 		// build options(CFG envname, type etc) from tag and field
 		opt := createTagFromFieldDef(field)
 		if hasTag {
-			parseTag(&opt, field.Name, tag)
+			processfield := parseTag(&opt, field.Name, tag)
+			if !processfield {
+				continue // cfg:"" が指定されているのでフィールドを無視
+			}
 		}
 
 		// log("field=%s key=%s (tag %s)\n", field.Name, opt.ConfigKey, tag)
@@ -80,7 +83,7 @@ func buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) map[string]reflect
 
 // default options from struct field definition
 func createTagFromFieldDef(field reflect.StructField) options {
-	opt := options{Slice: false, Merge: false}
+	opt := options{Slice: false, Map: false, Merge: true}
 
 	name := field.Name
 	opt.ConfigKey = strcase.UpperSnakeCase(name)
@@ -90,7 +93,6 @@ func createTagFromFieldDef(field reflect.StructField) options {
 		opt.Slice = true
 	case reflect.Map:
 		opt.Map = true
-		opt.Merge = true
 	default:
 		// no need to do
 	}
@@ -100,10 +102,11 @@ func createTagFromFieldDef(field reflect.StructField) options {
 
 // parseTag parses `cfg:"xxxxx, ttttt, ooooo"` from struct
 // result modifying opt
-func parseTag(opt *options, fieldName, tagString string) {
+// @return false=ignore this field, true=process this field
+func parseTag(opt *options, fieldName, tagString string) bool {
 
 	if tagString == "" {
-		return
+		return false
 	}
 
 	splitted := strings.Split(tagString, ",")
@@ -118,13 +121,15 @@ func parseTag(opt *options, fieldName, tagString string) {
 		case strings.EqualFold(splitted[1], "mergeslice"):
 			panic("'cfg: name, slice' is deprecated. use 'cfg: name' (default behavior is merge). ")
 		case strings.EqualFold(splitted[1], "overwrite"):
-
+			opt.Merge = false
 		case strings.EqualFold(splitted[1], "merge"):
+			opt.Merge = true
 		}
 	default:
 		msg := fmt.Sprintf("Illegal cfg tag %s on %s", tagString, fieldName)
 		panic(msg)
 	}
+	return true
 }
 
 // transformValueMap transforms valueMap to configMap

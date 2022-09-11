@@ -8,8 +8,8 @@ import (
 )
 
 type ConvArrayConfig struct {
-	IntArrayConf   []int     `cfg:"INT_ARRAY_,slice"`
-	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,slice"`
+	IntArrayConf   []int     `cfg:"INT_ARRAY_"`
+	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_"`
 }
 
 func TestLoadSliceWithConvert(t *testing.T) {

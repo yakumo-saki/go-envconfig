@@ -8,9 +8,9 @@ import (
 )
 
 type OverwriteSliceConfig struct {
-	StrArrayConf   []string  `cfg:"STR_ARRAY_,slice"`
-	IntArrayConf   []int     `cfg:"INT_ARRAY_,slice"`
-	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,slice"`
+	StrArrayConf   []string  `cfg:"STR_ARRAY_,overwrite"`
+	IntArrayConf   []int     `cfg:"INT_ARRAY_,overwrite"`
+	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,overwrite"`
 }
 
 func TestOverwriteSlice(t *testing.T) {

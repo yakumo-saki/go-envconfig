@@ -8,7 +8,7 @@ import (
 )
 
 type StrArrayConfig struct {
-	StrArrayConf []string `cfg:"STR_ARRAY_CONF_,slice"`
+	StrArrayConf []string `cfg:"STR_ARRAY_CONF_"`
 	Dummy1       string   `cfg:""`
 	Dummy2       string   `cfg:""`
 }

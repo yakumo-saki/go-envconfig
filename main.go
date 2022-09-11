@@ -88,7 +88,7 @@ func LoadConfig(cfg interface{}) error {
 			if err != nil {
 				return err
 			}
-			err = applyEnvfile(env, configFieldMap, cfg)
+			err = applyEnvMap(env, configFieldMap, cfg)
 			if err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ func LoadConfig(cfg interface{}) error {
 
 	// load environment values
 	envMap := getOSEnv()
-	err := applyEnvfile(envMap, configFieldMap, cfg)
+	err := applyEnvMap(envMap, configFieldMap, cfg)
 	if err != nil {
 		return err
 	}
@@ -128,8 +128,8 @@ func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string 
 	return ret
 }
 
-// applyEnvfile apply valueMap to cfg struct, using configFieldMap
-func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
+// applyEnvMap apply valueMap to cfg struct, using configFieldMap
+func applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
 	// Slice対応があるので configFieldMapから該当する設定
 	transformedMap := transformValueMap(valueMap, configFieldMap)
@@ -168,7 +168,7 @@ func applyEnvfile(valueMap map[string]string, configFieldMap map[string]reflectF
 			}
 
 			// normal path
-			logDebug("slice of %s. use normal path\n", sliceType)
+			// logDebug("slice of %s. use normal path\n", sliceType)
 			newSlice, err := convertSlice(sliceStr, sliceType)
 			if err != nil {
 				return fmt.Errorf("error on field %s: %w", field.Name, err)

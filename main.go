@@ -135,6 +135,27 @@ func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string 
 	return ret
 }
 
+// buildMapFromValueMap make slice[string] from config suffix by _00 ~ _99
+func buildMapFromValueMap(prefix string, mapType reflect.Type, valueMap map[string]string) any {
+
+	retRv := reflect.MakeMap(mapType)
+	valueType := mapType.Elem()
+
+	switch valueType.Kind() {
+	case reflect.Slice:
+		fmt.Println("slice inside map")
+	case reflect.Map:
+		fmt.Println("map inside map")
+		panic("map inside map is not supported")
+	default:
+		fmt.Printf("map key -> %s\n", valueType.String())
+	}
+
+	var ret any = retRv.Interface()
+
+	return ret
+}
+
 // applyEnvMap apply valueMap to cfg struct, using configFieldMap
 func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
@@ -186,6 +207,8 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 			} else {
 				fieldVal.Set(reflect.AppendSlice(fieldVal, newSlice))
 			}
+		case reflect.Map:
+			fmt.Println("not implemented")
 		default:
 			v, err := convertTo(val.(string), field.Type)
 			if err != nil {

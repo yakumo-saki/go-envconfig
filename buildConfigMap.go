@@ -149,6 +149,10 @@ func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMa
 				continue // sliceがempty => no config
 			}
 			ret[cfgKey] = slice
+		case refField.Options.Map:
+			// determine value type of map (key is always string)
+			m := buildMapFromValueMap(cfgKey, refField.Field.Type, valueMap)
+			ret[cfgKey] = m
 		default:
 			v, ok := valueMap[cfgKey]
 			if !ok {

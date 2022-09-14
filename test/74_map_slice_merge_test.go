@@ -30,8 +30,8 @@ func TestMapStrSliceMerge(t *testing.T) {
 	assert.Equal(1, len(cfg.StrSliceMap))
 	slice, ok := cfg.StrSliceMap["STRKEY1"]
 	assert.True(ok)
-	assert.Equal("ENVSTR1", slice[0])
-	assert.Equal("ENVSTR2", slice[1])
+	assert.Equal("FILESTR1", slice[0])
+	assert.Equal("FILESTR2", slice[1])
 	assert.Equal("STR1-1", slice[2])
 	assert.Equal("STR1-2", slice[3])
 }

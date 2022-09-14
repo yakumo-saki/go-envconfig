@@ -135,7 +135,7 @@ func parseTag(opt *options, fieldName, tagString string) bool {
 // transformValueMap transforms valueMap to configMap
 // Slice化の処理を行う
 // valueMap map[string]string -> map[string]string|[]string
-func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMap map[string]reflectField) map[string]interface{} {
+func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMap map[string]reflectField) (map[string]interface{}, error) {
 	ret := make(map[string]interface{})
 
 	for key, refField := range configFieldMap {
@@ -151,7 +151,10 @@ func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMa
 			ret[cfgKey] = slice
 		case refField.Options.Map:
 			// determine value type of map (key is always string)
-			m := buildMapFromValueMap(cfgKey, refField.Field.Type, valueMap)
+			m, err := buildMapFromValueMap(cfgKey, refField.Field.Type, valueMap)
+			if err != nil {
+				return ret, err
+			}
 			ret[cfgKey] = m
 		default:
 			v, ok := valueMap[cfgKey]
@@ -162,5 +165,5 @@ func (ec *EnvConfig) transformValueMap(valueMap map[string]string, configFieldMa
 		}
 	}
 
-	return ret
+	return ret, nil
 }

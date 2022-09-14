@@ -9,6 +9,8 @@ import (
 	"github.com/yakumo-saki/go-envconfig/internal/util"
 )
 
+var debugLog = true
+
 // EnvConfig is main struct of EnvConfig.
 // Use envconfig.New() to get instance.
 type EnvConfig struct {
@@ -115,31 +117,14 @@ func (ec *EnvConfig) LoadConfig(cfg interface{}) error {
 	return nil
 }
 
-// buildSliceFromValueMap make slice[string] from config suffix by _00 ~ _99
-func buildSliceFromValueMap(prefix string, valueMap map[string]string) []string {
-	ret := make([]string, 0)
-	for i := 0; i < 100; i++ {
-		v, ok := valueMap[prefix+fmt.Sprint(i)]
-		if ok {
-			ret = append(ret, v)
-		}
-
-		// 0〜9 の場合 00~09 もチェック
-		if i < 10 {
-			v, ok := valueMap[fmt.Sprintf("%s%02d", prefix, i)]
-			if ok {
-				ret = append(ret, v)
-			}
-		}
-	}
-	return ret
-}
-
 // applyEnvMap apply valueMap to cfg struct, using configFieldMap
 func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[string]reflectField, cfg interface{}) error {
 
 	// Slice対応があるので configFieldMapから該当する設定
-	transformedMap := ec.transformValueMap(valueMap, configFieldMap)
+	transformedMap, err := ec.transformValueMap(valueMap, configFieldMap)
+	if err != nil {
+		return err
+	}
 
 	for key, val := range transformedMap {
 		refField, ok := configFieldMap[key]
@@ -187,13 +172,19 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 				fieldVal.Set(reflect.AppendSlice(fieldVal, newSlice))
 			}
 		case reflect.Map:
-			fmt.Println("set value for reflect.Map is not implemented")
-			if fieldVal.IsNil() || !option.Merge {
+			switch {
+			case fieldVal.IsNil():
+				ec.logDebug("map set (nil)\n")
+				fieldVal.Set(reflect.ValueOf(val))
+			case !option.Merge:
 				ec.logDebug("map overwrite\n")
 				fieldVal.Set(reflect.ValueOf(val))
-			} else {
-				// fieldVal.Set(reflect.AppendSlice(fieldVal, newSlice))
-				panic("map merge is not implemented")
+			default:
+				mergedMapRV, err := createMergedMapRV(fieldVal, reflect.ValueOf(val))
+				if err != nil {
+					return err
+				}
+				fieldVal.Set(mergedMapRV)
 			}
 		default:
 			v, err := convertTo(val.(string), field.Type)

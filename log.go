@@ -1,6 +1,9 @@
 package envconfig
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // EnableUserLog enables log message for users.
 func (ec *EnvConfig) EnableUserLog(user func(format string, a ...interface{})) {
@@ -32,9 +35,17 @@ func (ec *EnvConfig) logWarn(format string, a ...interface{}) {
 	ec.warnlog(format, a...)
 }
 
-func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
-	if ec.debuglog == nil {
+func l(format string, a ...interface{}) {
+
+	if !debugLog {
 		return
 	}
+	if strings.HasSuffix(format, "\n") {
+		format = format + "\n"
+	}
+	fmt.Printf(format, a...)
+}
+
+func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
 	ec.debuglog(format, a...)
 }

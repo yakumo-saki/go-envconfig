@@ -29,10 +29,10 @@ func (ec *EnvConfig) buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) ma
 		fieldEntity := structEntity.FieldByName(field.Name)
 
 		if !field.IsExported() {
-			_, ok := field.Tag.Lookup(TAG)
+			_, ok := field.Tag.Lookup(tag)
 			if ok {
 				ec.logWarn("field %s has %s tag. but ignored. because field %s is not exported.\n",
-					field.Name, TAG, field.Name)
+					field.Name, tag, field.Name)
 			}
 
 			continue // 非公開フィールドは対象外
@@ -55,7 +55,7 @@ func (ec *EnvConfig) buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) ma
 		}
 
 		// フィールド
-		tag, hasTag := field.Tag.Lookup(TAG)
+		tag, hasTag := field.Tag.Lookup(tag)
 		if ec.strict && !hasTag {
 			continue // strictモードではcfgタグがついていないフィールドは無視
 		}

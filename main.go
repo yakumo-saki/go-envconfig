@@ -24,7 +24,7 @@ type EnvConfig struct {
 }
 
 // struct tag. "cfg"
-const TAG = "cfg"
+const tag = "cfg"
 
 // LogFunc is log output function
 // parameters are same as fmt.Printf

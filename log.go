@@ -35,17 +35,18 @@ func (ec *EnvConfig) logWarn(format string, a ...interface{}) {
 	ec.warnlog(format, a...)
 }
 
+func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
+	ec.debuglog(format, a...)
+}
+
+// l is for internal logging
 func l(format string, a ...interface{}) {
 
 	if !debugLog {
 		return
 	}
-	if strings.HasSuffix(format, "\n") {
+	if !strings.HasSuffix(format, "\n") {
 		format = format + "\n"
 	}
-	fmt.Printf(format, a...)
-}
-
-func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
-	ec.debuglog(format, a...)
+	fmt.Printf("INTERNAL:"+format, a...)
 }

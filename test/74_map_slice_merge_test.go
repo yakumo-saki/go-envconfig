@@ -27,20 +27,22 @@ func TestMapStrSliceMerge(t *testing.T) {
 		assert.Fail(err.Error())
 	}
 
-	assert.Equal(2, len(cfg.StrSliceMap))
+	assert.Equal(1, len(cfg.StrSliceMap))
 	slice, ok := cfg.StrSliceMap["STRKEY1"]
 	assert.True(ok)
-	assert.Equal("STR1-1", slice[0])
-	assert.Equal("STR1-2", slice[1])
+	assert.Equal("ENVSTR1", slice[0])
+	assert.Equal("ENVSTR2", slice[1])
+	assert.Equal("STR1-1", slice[2])
+	assert.Equal("STR1-2", slice[3])
 }
 
 func TestMapIntSliceMerge(t *testing.T) {
 	assert := assert.New(t)
 	ec := envconfig.New()
+	ec.AddPath("data/map/map_merge_slice_test.env")
 
 	t.Setenv("INT_SLICE_MAP_INTKEY1_1", "100")
 	t.Setenv("INT_SLICE_MAP_INTKEY1_2", "101")
-	t.Setenv("INT_SLICE_MAP_INTKEY1_3", "102")
 
 	cfg := EnvMapSliceMergeConfig{}
 	ec.EnableLogWithDefaultLogger()
@@ -49,11 +51,12 @@ func TestMapIntSliceMerge(t *testing.T) {
 		assert.Fail(err.Error())
 	}
 
-	assert.Equal(2, len(cfg.IntSliceMap))
+	assert.Equal(1, len(cfg.IntSliceMap))
 	slice, ok := cfg.IntSliceMap["INTKEY1"]
 	assert.True(ok)
-	assert.Equal(len(slice), 3)
-	assert.Equal(100, slice[0])
-	assert.Equal(101, slice[1])
-	assert.Equal(102, slice[2])
+	assert.Equal(len(slice), 4)
+	assert.Equal(99999, slice[0])
+	assert.Equal(88888, slice[1])
+	assert.Equal(100, slice[2])
+	assert.Equal(101, slice[3])
 }

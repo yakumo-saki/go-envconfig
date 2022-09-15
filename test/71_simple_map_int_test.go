@@ -8,7 +8,7 @@ import (
 )
 
 type EnvMapIntConfig struct {
-	Map map[string]int `cfg:"MAP_,map"`
+	Map map[string]int `cfg:"MAP_"`
 }
 
 func TestEnvMapIntConfig(t *testing.T) {
@@ -21,7 +21,7 @@ func TestEnvMapIntConfig(t *testing.T) {
 	t.Setenv("MAP_INT_KEY2-1", "21")
 	t.Setenv("MAP_INT_KEY2-2", "22")
 
-	// confusing key  CONFUSING_STR_MAP_KEY -> "confusing"
+	// confusing key
 	t.Setenv("MAP_MAP_MAP_MAP", "12345")
 
 	cfg := EnvMapIntConfig{}

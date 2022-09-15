@@ -8,7 +8,7 @@ import (
 )
 
 type EnvMapStringConfig struct {
-	StrMap map[string]string `cfg:"STR_MAP_,map"`
+	StrMap map[string]string `cfg:"STR_MAP_"`
 }
 
 func TestEnvMapStringConfig(t *testing.T) {

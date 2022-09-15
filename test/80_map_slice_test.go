@@ -32,14 +32,14 @@ func TestEnvMapStrSlice(t *testing.T) {
 	assert.Equal(2, len(cfg.StrSliceMap))
 	slice, ok := cfg.StrSliceMap["STRKEY1"]
 	assert.True(ok)
-	assert.Equal(len(slice), 3)
+	assert.Equal(3, len(slice))
 	assert.Equal("STR1-1", slice[0])
 	assert.Equal("STR1-2", slice[1])
 	assert.Equal("STR1-3", slice[2])
 
 	slice, ok = cfg.StrSliceMap["STRKEY2"]
 	assert.True(ok)
-	assert.Equal(len(slice), 2)
+	assert.Equal(2, len(slice))
 	assert.Equal("STR2-1", slice[0])
 	assert.Equal("STR2-2", slice[1])
 }
@@ -64,14 +64,14 @@ func TestEnvMapIntSlice(t *testing.T) {
 	assert.Equal(2, len(cfg.IntSliceMap))
 	slice, ok := cfg.IntSliceMap["INTKEY1"]
 	assert.True(ok)
-	assert.Equal(len(slice), 3)
+	assert.Equal(3, len(slice))
 	assert.Equal(100, slice[0])
 	assert.Equal(101, slice[1])
 	assert.Equal(102, slice[2])
 
 	slice, ok = cfg.IntSliceMap["INTKEY2"]
 	assert.True(ok)
-	assert.Equal(len(slice), 2)
+	assert.Equal(2, len(slice))
 	assert.Equal(200, slice[0])
 	assert.Equal(201, slice[1])
 }

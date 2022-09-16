@@ -126,8 +126,7 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 			sliceType := field.Type.Elem() // type of slice
 
 			if sliceType.Kind() == reflect.String {
-				ec.logDebug("slice of string. use fast path\n")
-				if fieldVal.IsNil() || !option.Merge {
+				if fieldVal.IsNil() || !option.SliceMerge {
 					ec.logDebug("slice overwrite\n")
 					fieldVal.Set(reflect.ValueOf(sliceStr))
 				} else {
@@ -143,7 +142,7 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 			if err != nil {
 				return fmt.Errorf("error on field %s: %w", field.Name, err)
 			}
-			if fieldVal.IsNil() || !option.Merge {
+			if fieldVal.IsNil() || !option.SliceMerge {
 				ec.logDebug("slice overwrite\n")
 				fieldVal.Set(newSlice)
 			} else {
@@ -154,11 +153,11 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 			case fieldVal.IsNil():
 				ec.logDebug("map set (nil)\n")
 				fieldVal.Set(reflect.ValueOf(val))
-			case !option.Merge:
+			case option.MapMergeType == OverwriteAll:
 				ec.logDebug("map overwrite\n")
 				fieldVal.Set(reflect.ValueOf(val))
 			default:
-				mergedMapRV, err := createMergedMapRV(fieldVal, reflect.ValueOf(val))
+				mergedMapRV, err := createMergedMapRV(option.MapMergeType, fieldVal, reflect.ValueOf(val))
 				if err != nil {
 					return err
 				}

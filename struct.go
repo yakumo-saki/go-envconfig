@@ -7,10 +7,11 @@ import "reflect"
 type LogFunc func(string, ...interface{})
 
 type options struct {
-	ConfigKey string
-	Slice     bool
-	Map       bool
-	Merge     bool // slice or map only. true=merge false=destroy and create
+	ConfigKey    string
+	Slice        bool
+	SliceMerge   bool // slice only. true=merge false=destroy and create
+	Map          bool
+	MapMergeType mapMergeType
 }
 
 type reflectField struct {
@@ -18,3 +19,11 @@ type reflectField struct {
 	RefValue reflect.Value
 	Options  options
 }
+
+type mapMergeType int
+
+const (
+	OverwriteAll mapMergeType = iota
+	KeyMerge
+	ValueMerge
+)

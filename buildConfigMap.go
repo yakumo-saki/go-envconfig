@@ -63,7 +63,7 @@ func (ec *EnvConfig) buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) ma
 		// build options(CFG envname, type etc) from tag and field
 		opt := createTagFromFieldDef(field)
 		if hasTag {
-			processfield := parseTag(&opt, field.Name, tag)
+			processfield := parseTag(&opt, field, tag)
 			if !processfield {
 				continue // cfg:"" が指定されているのでフィールドを無視
 			}
@@ -83,7 +83,7 @@ func (ec *EnvConfig) buildConfigFieldMapImpl(refValOfPtrStruct reflect.Value) ma
 
 // default options from struct field definition
 func createTagFromFieldDef(field reflect.StructField) options {
-	opt := options{Slice: false, Map: false, Merge: true}
+	opt := options{Slice: false, Map: false}
 
 	name := field.Name
 	opt.ConfigKey = strcase.UpperSnakeCase(name)
@@ -91,8 +91,10 @@ func createTagFromFieldDef(field reflect.StructField) options {
 	switch field.Type.Kind() {
 	case reflect.Slice:
 		opt.Slice = true
+		opt.SliceMerge = true
 	case reflect.Map:
 		opt.Map = true
+		opt.MapMergeType = KeyMerge
 	default:
 		// no need to do
 	}
@@ -103,7 +105,7 @@ func createTagFromFieldDef(field reflect.StructField) options {
 // parseTag parses `cfg:"xxxxx, ttttt, ooooo"` from struct
 // result modifying opt
 // @return false=ignore this field, true=process this field
-func parseTag(opt *options, fieldName, tagString string) bool {
+func parseTag(opt *options, field reflect.StructField, tagString string) bool {
 
 	if tagString == "" {
 		return false
@@ -115,18 +117,36 @@ func parseTag(opt *options, fieldName, tagString string) bool {
 		opt.ConfigKey = splitted[0]
 	case len(splitted) == 2:
 		opt.ConfigKey = splitted[0]
-		switch {
-		case strings.EqualFold(splitted[1], "slice"):
-			panic("'cfg: name, slice' is deprecated. use 'cfg: name, overwrite'. ")
-		case strings.EqualFold(splitted[1], "mergeslice"):
-			panic("'cfg: name, slice' is deprecated. use 'cfg: name' (default behavior is merge). ")
-		case strings.EqualFold(splitted[1], "overwrite"):
-			opt.Merge = false
-		case strings.EqualFold(splitted[1], "merge"):
-			opt.Merge = true
+
+		switch field.Type.Kind() {
+		case reflect.Slice:
+			switch strings.ToLower(splitted[1]) {
+			case "overwrite":
+				opt.SliceMerge = false
+			case "merge":
+				opt.SliceMerge = true
+			default:
+				msg := fmt.Sprintf("'cfg: %s, %s' is not reconized or not applicable to slice.", splitted[0], splitted[1])
+				panic(msg)
+			}
+		case reflect.Map:
+			switch strings.ToLower(splitted[1]) {
+			case "overwrite":
+				opt.MapMergeType = OverwriteAll
+			case "keymerge":
+				opt.MapMergeType = KeyMerge
+			case "valuemerge":
+				opt.MapMergeType = ValueMerge
+			default:
+				msg := fmt.Sprintf("'cfg: %s, %s' is not reconized or not applicable to map.", splitted[0], splitted[1])
+				panic(msg)
+			}
+		default:
+			msg := fmt.Sprintf("'cfg: %s, %s' is only suitable for slice or map", splitted[0], splitted[1])
+			panic(msg)
 		}
 	default:
-		msg := fmt.Sprintf("Illegal cfg tag %s on %s", tagString, fieldName)
+		msg := fmt.Sprintf("Illegal cfg tag %s on %s", tagString, field.Name)
 		panic(msg)
 	}
 	return true

@@ -7,12 +7,12 @@ import (
 	"github.com/yakumo-saki/go-envconfig"
 )
 
-type EnvMapSliceMergeConfig struct {
-	StrSliceMap map[string][]string `cfg:"STR_SLICE_MAP_"`
-	IntSliceMap map[string][]int    `cfg:"INT_SLICE_MAP_"`
+type EnvMapSliceValueMergeConfig struct {
+	StrSliceMap map[string][]string `cfg:"STR_SLICE_MAP_,valuemerge"`
+	IntSliceMap map[string][]int    `cfg:"INT_SLICE_MAP_,valuemerge"`
 }
 
-func TestMapStrSliceMerge(t *testing.T) {
+func TestMapStrSliceValueMerge(t *testing.T) {
 	assert := assert.New(t)
 	ec := envconfig.New()
 	ec.AddPath("data/map/map_merge_slice_test.env")
@@ -20,7 +20,7 @@ func TestMapStrSliceMerge(t *testing.T) {
 	t.Setenv("STR_SLICE_MAP_STRKEY1_1", "STR1-1")
 	t.Setenv("STR_SLICE_MAP_STRKEY1_2", "STR1-2")
 
-	cfg := EnvMapSliceMergeConfig{}
+	cfg := EnvMapSliceValueMergeConfig{}
 	ec.EnableLogWithDefaultLogger()
 	err := ec.LoadConfig(&cfg)
 	if err != nil {
@@ -37,7 +37,7 @@ func TestMapStrSliceMerge(t *testing.T) {
 	assert.Equal("STR1-2", slice[3])
 }
 
-func TestMapIntSliceMerge(t *testing.T) {
+func TestMapIntSliceValueMerge(t *testing.T) {
 	assert := assert.New(t)
 	ec := envconfig.New()
 	ec.AddPath("data/map/map_merge_slice_test.env")
@@ -45,7 +45,7 @@ func TestMapIntSliceMerge(t *testing.T) {
 	t.Setenv("INT_SLICE_MAP_INTKEY1_1", "100")
 	t.Setenv("INT_SLICE_MAP_INTKEY1_2", "101")
 
-	cfg := EnvMapSliceMergeConfig{}
+	cfg := EnvMapSliceValueMergeConfig{}
 	ec.EnableLogWithDefaultLogger()
 	err := ec.LoadConfig(&cfg)
 	if err != nil {

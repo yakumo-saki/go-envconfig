@@ -17,8 +17,8 @@ func TestMapStrSliceOverwrite(t *testing.T) {
 	ec := envconfig.New()
 	ec.AddPath("data/map/map_merge_slice_test.env")
 
-	t.Setenv("STR_SLICE_MAP_STRKEY1_1", "STR1-1")
-	t.Setenv("STR_SLICE_MAP_STRKEY1_2", "STR1-2")
+	t.Setenv("STR_SLICE_MAP_STRKEY2_1", "STR2-1")
+	t.Setenv("STR_SLICE_MAP_STRKEY2_2", "STR2-2")
 
 	cfg := EnvMapSliceOverwriteConfig{}
 	ec.EnableLogWithDefaultLogger()
@@ -28,11 +28,11 @@ func TestMapStrSliceOverwrite(t *testing.T) {
 	}
 
 	assert.Equal(1, len(cfg.StrSliceMap))
-	slice, ok := cfg.StrSliceMap["STRKEY1"]
+	slice, ok := cfg.StrSliceMap["STRKEY2"]
 	assert.True(ok)
 	assert.Equal(2, len(slice))
-	assert.Equal("STR1-1", slice[0])
-	assert.Equal("STR1-2", slice[1])
+	assert.Equal("STR2-1", slice[0])
+	assert.Equal("STR2-2", slice[1])
 }
 
 func TestMapIntSliceOverwrite(t *testing.T) {
@@ -40,8 +40,8 @@ func TestMapIntSliceOverwrite(t *testing.T) {
 	ec := envconfig.New()
 	ec.AddPath("data/map/map_merge_slice_test.env")
 
-	t.Setenv("INT_SLICE_MAP_INTKEY1_1", "100")
-	t.Setenv("INT_SLICE_MAP_INTKEY1_2", "101")
+	t.Setenv("INT_SLICE_MAP_INTKEY2_1", "100")
+	t.Setenv("INT_SLICE_MAP_INTKEY2_2", "101")
 
 	cfg := EnvMapSliceOverwriteConfig{}
 	ec.EnableLogWithDefaultLogger()
@@ -51,7 +51,7 @@ func TestMapIntSliceOverwrite(t *testing.T) {
 	}
 
 	assert.Equal(1, len(cfg.IntSliceMap))
-	slice, ok := cfg.IntSliceMap["INTKEY1"]
+	slice, ok := cfg.IntSliceMap["INTKEY2"]
 	assert.True(ok)
 	assert.Equal(2, len(slice))
 	assert.Equal(100, slice[0])

@@ -20,13 +20,13 @@ func TestMapOverwriteConfig(t *testing.T) {
 	t.Setenv("MAP_STR_KEY1", "STR1-1")
 	t.Setenv("MAP_STR_KEY2", "STR2-1")
 
-	cfg := EnvMapMergeConfig{}
+	cfg := EnvMapOverwriteConfig{}
 	ec.EnableLogWithDefaultLogger()
 	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
 
-	assert.Equal("A1", cfg.StrMap["STR_KEY_A1"])
-	assert.Equal("A2", cfg.StrMap["STR_KEY_A2"])
+	assert.Equal("STR1-1", cfg.StrMap["STR_KEY1"])
+	assert.Equal("STR2-1", cfg.StrMap["STR_KEY2"])
 }

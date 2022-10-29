@@ -17,8 +17,8 @@ func TestOverwriteSlice(t *testing.T) {
 	assert := assert.New(t)
 
 	ec := envconfig.New()
-	ec.AddPath("data/simple/merge_slice_config1.env")
-	ec.AddPath("data/simple/merge_slice_config2.env")
+	ec.AddPath("../data/simple/merge_slice_config1.env")
+	ec.AddPath("../data/simple/merge_slice_config2.env")
 
 	cfg := OverwriteSliceConfig{}
 	ec.EnableLogWithDefaultLogger()

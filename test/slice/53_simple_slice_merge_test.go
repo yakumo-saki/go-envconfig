@@ -18,8 +18,8 @@ func TestMergeSlice(t *testing.T) {
 
 	ec := envconfig.New()
 	ec.ClearPath()
-	ec.AddPath("data/simple/merge_slice_config1.env")
-	ec.AddPath("data/simple/merge_slice_config2.env")
+	ec.AddPath("../data/simple/merge_slice_config1.env")
+	ec.AddPath("../data/simple/merge_slice_config2.env")
 
 	cfg := MergeSliceConfig{}
 	ec.EnableLogWithDefaultLogger()

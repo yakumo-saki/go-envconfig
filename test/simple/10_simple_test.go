@@ -20,7 +20,7 @@ func TestLoadSimpleOne(t *testing.T) {
 	assert := assert.New(t)
 	ec := envconfig.New()
 	ec.ClearPath()
-	ec.AddPath("data/simple/simple.env")
+	ec.AddPath("../data/simple/simple.env")
 
 	cfg := SimpleConfig{}
 	ec.EnableLogWithDefaultLogger()

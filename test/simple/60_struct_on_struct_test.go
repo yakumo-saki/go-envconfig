@@ -10,6 +10,7 @@ import (
 type MultiTierConfig struct {
 	SubConfig SubConfigStruct
 	StringCfg string
+	Check     string `cfg:"CHECK_READ"`
 }
 
 type SubConfigStruct struct {
@@ -19,7 +20,7 @@ type SubConfigStruct struct {
 func TestMultiTierConfig(t *testing.T) {
 	assert := assert.New(t)
 	ec := envconfig.New()
-	ec.AddPath("data/simple/struct_on_struct.env")
+	ec.AddPath("../data/simple/struct_on_struct.env")
 
 	cfg := MultiTierConfig{}
 	ec.EnableLogWithDefaultLogger()
@@ -27,6 +28,8 @@ func TestMultiTierConfig(t *testing.T) {
 	if err != nil {
 		assert.Fail(err.Error())
 	}
+
+	assert.Equal("OK", cfg.Check)
 
 	assert.Equal("abc0", cfg.SubConfig.SubStringConf)
 }

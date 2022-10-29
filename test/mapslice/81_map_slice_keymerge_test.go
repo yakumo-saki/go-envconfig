@@ -11,12 +11,14 @@ import (
 type EnvMapSliceDefaultMergeConfig struct {
 	StrSliceMap map[string][]string `cfg:"STR_SLICE_MAP_"`
 	IntSliceMap map[string][]int    `cfg:"INT_SLICE_MAP_"`
+	Check       string              `cfg:"CHECK_READ"`
 }
 
 // same as default merge
 type EnvMapSliceKeyMergeConfig struct {
 	StrSliceMap map[string][]string `cfg:"STR_SLICE_MAP_,keymerge"`
 	IntSliceMap map[string][]int    `cfg:"INT_SLICE_MAP_,keymerge"`
+	Check       string              `cfg:"CHECK_READ"`
 }
 
 func TestMapStrSliceDefaultMerge(t *testing.T) {
@@ -24,7 +26,7 @@ func TestMapStrSliceDefaultMerge(t *testing.T) {
 
 	assert := assert.New(t)
 	ec := envconfig.New()
-	ec.AddPath("data/map/map_merge_slice_test.env")
+	ec.AddPath("../data/mapslice/map_merge_slice_test.env")
 
 	t.Setenv("STR_SLICE_MAP_STRKEY1_1", "STR1-1")
 	t.Setenv("STR_SLICE_MAP_STRKEY1_2", "STR1-2")
@@ -36,6 +38,8 @@ func TestMapStrSliceDefaultMerge(t *testing.T) {
 	if err != nil {
 		assert.Fail(err.Error())
 	}
+
+	assert.Equal("OK", cfg.Check)
 
 	assert.Equal(1, len(cfg.StrSliceMap))
 	slice, ok := cfg.StrSliceMap["STRKEY1"]
@@ -58,7 +62,7 @@ func TestMapStrSliceKeyMerge(t *testing.T) {
 
 	assert := assert.New(t)
 	ec := envconfig.New()
-	ec.AddPath("data/map/map_merge_slice_test.env")
+	ec.AddPath("../data/mapslice/map_merge_slice_test.env")
 
 	t.Setenv("STR_SLICE_MAP_STRKEY1_1", "STR1-1")
 	t.Setenv("STR_SLICE_MAP_STRKEY1_2", "STR1-2")
@@ -70,6 +74,8 @@ func TestMapStrSliceKeyMerge(t *testing.T) {
 	if err != nil {
 		assert.Fail(err.Error())
 	}
+
+	assert.Equal("OK", cfg.Check)
 
 	assert.Equal(1, len(cfg.StrSliceMap))
 	slice, ok := cfg.StrSliceMap["STRKEY1"]

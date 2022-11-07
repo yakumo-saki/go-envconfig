@@ -55,17 +55,26 @@ func (ec *EnvConfig) ClearPath() {
 
 // LoadConfig starts config process
 // parameter must be pointer of struct entity
+//
+// cause panic:
+// * coding error
+// * internal error
+//
+// return error:
+// * config value error
 func (ec *EnvConfig) LoadConfig(cfg interface{}) error {
 
 	cfgType := reflect.TypeOf(cfg)
 	if !strings.HasPrefix(cfgType.String(), "*") {
-		return fmt.Errorf("cfg must be pass as pointer, but passed %s", cfgType.String())
+		panic(fmt.Sprintf("ERROR: cfg must be pass as pointer, but passed %s", cfgType.String()))
 	}
 
 	// tag -> fielddesc のmapを作る
 	configFieldMap := ec.buildConfigFieldMap(cfg)
-	for k, v := range configFieldMap {
-		ec.logDebug("configField: key=%s value=%v\n", k, v)
+	if ec.isLogDebugEnabled() {
+		for k, v := range configFieldMap {
+			ec.logDebug("configField: key=%s value=%v\n", k, v)
+		}
 	}
 
 	// load config files
@@ -107,7 +116,7 @@ func (ec *EnvConfig) applyEnvMap(valueMap map[string]string, configFieldMap map[
 	for key, val := range transformedMap {
 		refField, ok := configFieldMap[key]
 		if !ok {
-			panic("transformedMap key is not found in configFieldMap")
+			panic("BUG: transformedMap key is not found in configFieldMap " + key)
 		}
 
 		field := refField.Field

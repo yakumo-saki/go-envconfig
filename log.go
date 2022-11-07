@@ -36,7 +36,15 @@ func (ec *EnvConfig) logWarn(format string, a ...interface{}) {
 }
 
 func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
+	if ec.debuglog == nil {
+		return
+	}
 	ec.debuglog(format, a...)
+}
+
+// returns logDebug output is set
+func (ec *EnvConfig) isLogDebugEnabled() bool {
+	return ec.debuglog != nil
 }
 
 // l is for internal logging

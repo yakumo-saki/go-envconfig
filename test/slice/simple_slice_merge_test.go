@@ -8,20 +8,22 @@ import (
 )
 
 type MergeSliceConfig struct {
-	StrArrayConf   []string  `cfg:"STR_ARRAY_,mergeslice"`
-	IntArrayConf   []int     `cfg:"INT_ARRAY_,mergeslice"`
-	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,mergeslice"`
+	StrArrayConf   []string  `cfg:"STR_ARRAY_,merge"`
+	IntArrayConf   []int     `cfg:"INT_ARRAY_,merge"`
+	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,merge"`
 }
 
 func TestMergeSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/merge_slice_config1.env")
-	envconfig.AddPath("data/simple/merge_slice_config2.env")
+
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("../data/simple/merge_slice_config1.env")
+	ec.AddPath("../data/simple/merge_slice_config2.env")
 
 	cfg := MergeSliceConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

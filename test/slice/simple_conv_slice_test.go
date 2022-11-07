@@ -8,18 +8,19 @@ import (
 )
 
 type ConvArrayConfig struct {
-	IntArrayConf   []int     `cfg:"INT_ARRAY_,slice"`
-	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,slice"`
+	IntArrayConf   []int     `cfg:"INT_ARRAY_"`
+	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_"`
 }
 
 func TestLoadSliceWithConvert(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/simpleArrayConv.env")
+
+	ec := envconfig.New()
+	ec.AddPath("../data/simple/simpleArrayConv.env")
 
 	cfg := ConvArrayConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

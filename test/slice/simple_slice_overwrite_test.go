@@ -8,20 +8,21 @@ import (
 )
 
 type OverwriteSliceConfig struct {
-	StrArrayConf   []string  `cfg:"STR_ARRAY_,slice"`
-	IntArrayConf   []int     `cfg:"INT_ARRAY_,slice"`
-	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,slice"`
+	StrArrayConf   []string  `cfg:"STR_ARRAY_,overwrite"`
+	IntArrayConf   []int     `cfg:"INT_ARRAY_,overwrite"`
+	FloatArrayConf []float64 `cfg:"FLOAT_ARRAY_,overwrite"`
 }
 
 func TestOverwriteSlice(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/merge_slice_config1.env")
-	envconfig.AddPath("data/simple/merge_slice_config2.env")
+
+	ec := envconfig.New()
+	ec.AddPath("../data/simple/merge_slice_config1.env")
+	ec.AddPath("../data/simple/merge_slice_config2.env")
 
 	cfg := OverwriteSliceConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}

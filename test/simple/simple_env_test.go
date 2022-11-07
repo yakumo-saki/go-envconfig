@@ -2,7 +2,6 @@ package envconfig_test
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,21 +18,23 @@ type EnvConfig struct {
 // 値の変換にバグがないかテストする
 func TestEnvOnly(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
 
-	os.Setenv("STR_CONF", "ENV123")
-	os.Setenv("INT_CONF", "555")
-	os.Setenv("MY_CONF", "MYCONF")
+	ec := envconfig.New()
+	ec.ClearPath()
+
+	t.Setenv("MY_CONF", "MYCONF")
+	t.Setenv("STR_CONF", "ENV123")
+	t.Setenv("INT_CONF", "555")
 
 	cfg := EnvConfig{}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
 
 	fmt.Printf("after %v\n", cfg)
-	assert.Nil(err)
+	fmt.Println("myconf-" + cfg.MyConf)
 	assert.Equal("ENV123", cfg.StrConf)
 	assert.Equal(555, cfg.IntConf)
 	assert.Equal("MYCONF", cfg.MyConf)

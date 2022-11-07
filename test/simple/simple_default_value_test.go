@@ -11,6 +11,7 @@ type TestDefaultConfig struct {
 	StrConf     string
 	Sub         TestDefaultSubConfig
 	warningTest string `cfg:"IGNORED"`
+	Check       string `cfg:"CHECK_READ"`
 }
 
 type TestDefaultSubConfig struct {
@@ -21,16 +22,20 @@ type TestDefaultSubConfig struct {
 // デフォルト値を保存しているかテスト
 func TestSimpleDefaultValue(t *testing.T) {
 	assert := assert.New(t)
-	envconfig.ClearPath()
-	envconfig.AddPath("data/simple/default_value.env")
+
+	ec := envconfig.New()
+	ec.ClearPath()
+	ec.AddPath("../data/simple/default_value.env")
 
 	cfg := TestDefaultConfig{StrConf: "DEFAULT_STR_CONF"}
 	cfg.Sub = TestDefaultSubConfig{SubStructStrConf: "SUB_STRUCT_DEFAULT", SubConfig: "must be overwrite"}
-	envconfig.EnableLogWithDefaultLogger()
-	err := envconfig.LoadConfig(&cfg)
+	ec.EnableLogWithDefaultLogger()
+	err := ec.LoadConfig(&cfg)
 	if err != nil {
 		assert.Fail(err.Error())
 	}
+
+	assert.Equal("OK", cfg.Check)
 
 	assert.Equal("DEFAULT_STR_CONF", cfg.StrConf)
 	assert.Equal("SUB_STRUCT_DEFAULT", cfg.Sub.SubStructStrConf)

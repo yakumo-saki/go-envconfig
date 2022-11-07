@@ -6,6 +6,7 @@ import (
 	"strconv"
 )
 
+// convertTo converts string value to type
 func convertTo(value string, typ reflect.Type) (reflect.Value, error) {
 
 	switch typ.Kind() {
@@ -26,10 +27,11 @@ func convertTo(value string, typ reflect.Type) (reflect.Value, error) {
 		ret := reflect.ValueOf(v).Convert(typ)
 		return ret, nil
 	default:
-		return reflect.ValueOf(nil), fmt.Errorf("unsupported type %s", typ.Kind().String())
+		return reflect.ValueOf(nil), fmt.Errorf("converTo: unsupported type %s", typ.Kind().String())
 	}
 }
 
+// convertSlice converts []string to []type
 func convertSlice(sliceStr []string, sliceType reflect.Type) (reflect.Value, error) {
 	ret := reflect.MakeSlice(reflect.SliceOf(sliceType), 0, len(sliceStr))
 

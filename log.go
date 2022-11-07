@@ -1,30 +1,52 @@
 package envconfig
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-// EnableLog enables logging with specified log output function.
+// EnableUserLog enables log message for users.
+func (ec *EnvConfig) EnableUserLog(user func(format string, a ...interface{})) {
+	ec.userlog = user
+}
+
+// EnableDebugLog enables logging with specified log output function.
 // Not output log if function is Nil
-func EnableLog(debug, warn func(format string, a ...interface{})) {
-	debuglog = debug
-	warnlog = warn
+func (ec *EnvConfig) EnableDebugLog(debug, warn func(format string, a ...interface{})) {
+	ec.debuglog = debug
+	ec.warnlog = warn
 }
 
 // EnableLogWithDefaultLogger enables logging with fmt.Printf output.
-func EnableLogWithDefaultLogger() {
-	warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
-	debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
+func (ec *EnvConfig) EnableLogWithDefaultLogger() {
+	ec.userlog = func(format string, a ...interface{}) { fmt.Printf(format, a...) }
+	ec.warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
+	ec.debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
 }
 
-func logWarn(format string, a ...interface{}) {
-	if debuglog == nil {
-		return
-	}
-	warnlog(format, a...)
+func (ec *EnvConfig) logUser(format string, a ...interface{}) {
+	ec.userlog(format, a)
 }
 
-func logDebug(format string, a ...interface{}) {
-	if debuglog == nil {
+func (ec *EnvConfig) logWarn(format string, a ...interface{}) {
+	if ec.debuglog == nil {
 		return
 	}
-	debuglog(format, a...)
+	ec.warnlog(format, a...)
+}
+
+func (ec *EnvConfig) logDebug(format string, a ...interface{}) {
+	ec.debuglog(format, a...)
+}
+
+// l is for internal logging
+func l(format string, a ...interface{}) {
+
+	if !debugLog {
+		return
+	}
+	if !strings.HasSuffix(format, "\n") {
+		format = format + "\n"
+	}
+	fmt.Printf("INTERNAL:"+format, a...)
 }

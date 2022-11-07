@@ -37,8 +37,8 @@ type Conf struct {
 }
 
 func main() {
-    envconfig.AddPath("path/to/your/config")
-    envconfig.AddPath("path/to/your/another/config")
+    envconfig.AddPath("path/to/your/config")        
+    envconfig.AddPath("path/to/your/another/config")  // if not found, thats ok. simply ignored
     
     cfg := Conf{}
     err := envconfig.LoadConfig(&cfg)
@@ -58,7 +58,69 @@ func main() {
 * envconfig.AddPath()されたファイルを読み終わった後に環境変数を読み込みます。
 * 同一の設定が存在する場合、後に出現したものが優先されます。
 
-## Advanced
+### TAG
+
+細かい動作を指定したい場合は、受け側のstructにtagを記述することで制御可能。
+通常の変数、slice、mapの3パターンで動作が変わる。
+以下、環境変数もしくは、設定ファイルを合わせて設定と呼ぶ。
+
+```golang
+type Conf struct {
+    StrConf string `cfg:"ENV_OR_CFGKEY_NAME,option"`
+    IntConf int
+}
+```
+
+#### 通常の変数時
+
+##### ENV_OR_CFGKEY_NAME
+
+設定のキー。指定された名前の設定の値がセットされる。
+
+##### option
+
+なし。指定するとエラーになる。
+
+#### Slice時
+
+##### ENV_OR_CFGKEY_NAME
+
+設定のキーのプレフィックス。
+例えば、 `MY_CFG` を指定すると、`MY_CFG_0` `MY_CFG_1` ... `MY_CFG_99` の値がsliceにセットされる。
+
+##### `merge` (default)
+
+環境変数と設定ファイルにプレフィックスに該当する設定があった場合、内容をマージする。
+
+```
+環境変数 
+MY_CFG_0=env_0
+
+ファイル CFG_FILE
+MY_CFG_0=file_0
+
+結果
+MY_CFG=["env_0", "file_0"]
+```
+
+##### `overwrite` 
+
+環境変数と設定ファイルにプレフィックスに該当する設定があった場合、最後に見つけた内容のみをsliceにセットする。
+
+```
+ファイル CFG_FILE
+MY_CFG_0=file_0
+
+環境変数 
+MY_CFG_0=env_0
+
+結果
+MY_CFG=["env_0", "file_0"]
+```
+
+##### map
+
+## Examples
 
 ### デフォルト値を入れたい
 
@@ -127,7 +189,6 @@ type Conf struct {
 }
 ```
 
-
 #### 実行例
 
 ```config1
@@ -158,7 +219,7 @@ func main() {
     UseStrict() 
     
     envconfig.LoadConfig(&cfg)
-    fmt.Println(cfg.Test)  // empty. not "this is not read"
+    fmt.Println(cfg.Test)  // empty. NOT "this is not read"
 }
 ```
 

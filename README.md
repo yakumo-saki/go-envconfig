@@ -2,6 +2,12 @@
 
 設定ファイルと環境変数から値を取得してstructにセットします。  
 
+## branching
+
+main branch is newest release.
+edge branch for development.
+semver tag is available.
+
 ## 特徴
 
 * 設定なしでもつかえる

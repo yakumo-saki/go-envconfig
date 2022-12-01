@@ -125,7 +125,65 @@ MY_CFG_0=env_0
 MY_CFG=["env_0", "file_0"]
 ```
 
-##### map
+#### map (value is not slice) 
+
+eg) map[key] is string, int, float...
+
+
+##### `keymerge` (default)
+
+##### `overwrite`
+
+##### `valuemerge` 
+
+causes panic. (v0.3.x) 
+値をマージすることができないため。
+
+#### map (value is slice) 
+
+eg) map[key] is []string, []int ...
+
+実行結果は以下の入力があったときのものである。
+
+```
+file1.env
+MYMAP_ALICE_1=alice1_file1
+MYMAP_ALICE_2=alice2_file1
+MYMAP_BOB_1=bob_file1
+
+file2.env
+MYMAP_ALICE_1=alice1_fileTWO
+```
+
+
+##### `keymerge` (default)
+
+同一マップが複数箇所で定義された場合、キー単位で最後に定義された箇所のみが有効になる。
+
+```
+MYMAP["ALICE"] = []string{"alice1_fileTWO"}
+MYMAP["BOB"] = []string{"bob_file1"}
+```
+
+##### `valuemerge`
+
+同一マップが複数箇所で定義された場合、キー単位で値をマージする 
+
+
+```
+MYMAP["ALICE"] = []string{"alice1_file1","alice2_file1","alice1_fileTWO"}
+MYMAP["BOB"] = []string{"bob_file1"}
+```
+
+
+##### `overwrite`
+
+同一マップが複数箇所で定義された場合、最後に定義された箇所のみのマップを生成する
+
+```
+MYMAP["ALICE"] = []string{"alice1_fileTWO"}
+```
+
 
 ## Examples
 

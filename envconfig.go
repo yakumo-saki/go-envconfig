@@ -24,6 +24,8 @@ type EnvConfig struct {
 // Always use this method to get instance of EnvConfig
 func New() *EnvConfig {
 	ec := EnvConfig{}
+	ec.EnableLogWithDefaultLogger()
+
 	return &ec
 }
 
@@ -46,6 +48,14 @@ func (ec *EnvConfig) AddPath(path string) int {
 	}
 	ec.paths = append(ec.paths, path)
 	return len(ec.paths)
+}
+
+// GetPath returns env file paths in search order.
+// return is copy of internal array. not pointer.
+func (ec *EnvConfig) GetPaths() []string {
+	ret := make([]string, len(ec.paths))
+	copy(ret, ec.paths)
+	return ret
 }
 
 // ClearPath clear all paths added by AddPath()

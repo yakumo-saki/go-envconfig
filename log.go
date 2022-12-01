@@ -18,10 +18,11 @@ func (ec *EnvConfig) EnableDebugLog(debug, warn func(format string, a ...interfa
 }
 
 // EnableLogWithDefaultLogger enables logging with fmt.Printf output.
+// No dont need to call this. envconfig.New() is call this.
 func (ec *EnvConfig) EnableLogWithDefaultLogger() {
 	ec.userlog = func(format string, a ...interface{}) { fmt.Printf(format, a...) }
-	ec.warnlog = func(format string, a ...interface{}) { fmt.Printf("WARN :"+format, a...) }
-	ec.debuglog = func(format string, a ...interface{}) { fmt.Printf("DEBUG:"+format, a...) }
+	ec.warnlog = nil
+	ec.debuglog = nil
 }
 
 func (ec *EnvConfig) logUser(format string, a ...interface{}) {

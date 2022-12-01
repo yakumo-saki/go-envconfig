@@ -12,7 +12,7 @@
 ## インストール
 
 ```
-go get https://github.com/yakumo-saki/go-envconfig
+go get -u https://github.com/yakumo-saki/go-envconfig
 ```
 
 ## Getting started
@@ -37,11 +37,12 @@ type Conf struct {
 }
 
 func main() {
-    envconfig.AddPath("path/to/your/config")        
-    envconfig.AddPath("path/to/your/another/config")  // if not found, thats ok. simply ignored
+    ec := envconfig.New()
+    ec.AddPath("path/to/your/config")        
+    ec.AddPath("path/to/your/another/config")  // if not found, thats ok. simply ignored
     
     cfg := Conf{}
-    err := envconfig.LoadConfig(&cfg)
+    err := ec.LoadConfig(&cfg)
     if err != nil {
         panic(err)
     }
@@ -218,7 +219,8 @@ func main() {
     // Use Strict mode.
     UseStrict() 
     
-    envconfig.LoadConfig(&cfg)
+    ec := envconfig.New()
+    ec.LoadConfig(&cfg)
     fmt.Println(cfg.Test)  // empty. NOT "this is not read"
 }
 ```

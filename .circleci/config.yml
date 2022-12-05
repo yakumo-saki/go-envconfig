@@ -35,5 +35,6 @@ jobs:
             fullModName=`cat go.mod | grep module | sed -e "s/module //"`
             mkdir -p ~/$fullModName
             cp -rv ./* ~/$fullModName/
-            cd ~/$fullModName
+            cp c.out ~
+            cd ~
             ./cc-test-reporter after-build

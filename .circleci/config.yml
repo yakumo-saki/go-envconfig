@@ -31,4 +31,8 @@ jobs:
             go test -coverpkg . -coverprofile c.out ./test/...
       - run:
           name: Send test result
-          command: ./cc-test-reporter after-build
+          command: |
+            fullModName=`cat go.mod | grep module | sed -e "s/module //"`
+            mkdir -p $fullModName
+            cp -r . $fullModName/
+            ./cc-test-reporter after-build

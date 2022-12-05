@@ -19,8 +19,16 @@ jobs:
           paths:
             - "~/go/pkg/mod"
       - run:
-          name: Run tests
-          command: go test -v
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
       - run:
           name: Run tests
-          command: echo $CC_TEST_REPORTER_ID
+          command: |
+            go test -coverprofile c.out ./test/...
+      - run:
+          name: Send test result
+          command: ./cc-test-reporter after-build

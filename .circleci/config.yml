@@ -2,10 +2,14 @@ version: 2.1
 jobs:
   build:
     resource_class: medium
-    working_directory: ~/repo
     docker:
       # https://github.com/CircleCI-Public/cimg-go
       - image: cimg/go:1.19
+    environment:
+      CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
+
+    global:
+        - CC_TEST_REPORTER_ID=token
 
     steps:
       - checkout
@@ -18,7 +22,10 @@ jobs:
       - save_cache:
           key: go-mod-v4-{{ checksum "go.sum" }}
           paths:
-            - "/go/pkg/mod"
+            - "~/go/pkg/mod"
       - run:
           name: Run tests
           command: go test -v
+      - run:
+          name: Run tests
+          command: echo $CC_TEST_REPORTER_ID

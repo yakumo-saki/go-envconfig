@@ -8,9 +8,6 @@ jobs:
     environment:
       CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
 
-    global:
-        - CC_TEST_REPORTER_ID=token
-
     steps:
       - checkout
       - restore_cache:

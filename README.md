@@ -1,3 +1,5 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/9663105b652c1efc710e/maintainability)](https://codeclimate.com/github/yakumo-saki/go-envconfig/maintainability)[![Test Coverage](https://api.codeclimate.com/v1/badges/9663105b652c1efc710e/test_coverage)](https://codeclimate.com/github/yakumo-saki/go-envconfig/test_coverage)
+
 # go-envconfig
 
 設定ファイルと環境変数から値を取得してstructにセットします。  

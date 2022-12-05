@@ -1,9 +1,12 @@
 version: 2.1
 jobs:
   build:
+    resource_class: medium
     working_directory: ~/repo
     docker:
-      - image: circleci/golang:1.19.2
+      # https://github.com/CircleCI-Public/cimg-go
+      - image: cimg/golang:1.19.2
+
     steps:
       - checkout
       - restore_cache:

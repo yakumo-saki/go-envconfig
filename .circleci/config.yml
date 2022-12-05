@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/repo
     docker:
       # https://github.com/CircleCI-Public/cimg-go
-      - image: cimg/golang:1.19.2
+      - image: cimg/go:1.19
 
     steps:
       - checkout

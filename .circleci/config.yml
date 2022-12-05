@@ -33,6 +33,7 @@ jobs:
           name: Send test result
           command: |
             fullModName=`cat go.mod | grep module | sed -e "s/module //"`
-            mkdir -p $fullModName
-            cp -r ./* $fullModName/
+            mkdir -p ~/$fullModName
+            cp -rv ./* ~/$fullModName/
+            cd ~/$fullModName
             ./cc-test-reporter after-build

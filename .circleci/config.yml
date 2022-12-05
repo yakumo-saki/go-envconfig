@@ -5,8 +5,6 @@ jobs:
     docker:
       # https://github.com/CircleCI-Public/cimg-go
       - image: cimg/go:1.19
-    environment:
-      CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
 
     steps:
       - checkout

@@ -36,5 +36,6 @@ jobs:
             mkdir -p ~/$fullModName
             cp -rvaT ./ ~/$fullModName/
             cp c.out cc-test-reporter ~
+            cp -a .git ~
             cd ~
             ./cc-test-reporter after-build
